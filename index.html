@@ -1,0 +1,2918 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cuatro agentes de IA para proyectos — Tutorial interactivo</title>
+<style>
+/* ============================================================
+   VARIABLES Y BASE
+   ============================================================ */
+:root{
+  --bg:#0a0e1a;
+  --card:#0f172a;
+  --card2:#111c33;
+  --accent:#1e3a5f;
+  --border:#1e293b;
+  --text:#e6edf7;
+  --muted:#94a3b8;
+  --link:#60a5fa;
+  --code-bg:#070d1a;
+  --code-text:#cfe4ff;
+  --ok:#34d399;
+  --warn:#fbbf24;
+  --bad:#f87171;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+html.light{
+  --bg:#eef3fa;
+  --card:#ffffff;
+  --card2:#f7faff;
+  --accent:#dbe7f5;
+  --border:#d3deee;
+  --text:#0d1526;
+  --muted:#4d5c75;
+  --link:#1d4ed8;
+  --code-bg:#f2f6fc;
+  --code-text:#132038;
+  --shadow:0 8px 24px rgba(15,23,42,.10);
+}
+*{box-sizing:border-box;}
+html{font-size:16px;scroll-behavior:smooth;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.65;
+  -webkit-text-size-adjust:100%;
+  overflow-x:hidden;
+}
+img,svg{max-width:100%;}
+a{color:var(--link);}
+h1,h2,h3,h4{line-height:1.25;margin:0 0 .5rem;}
+h1{font-size:1.7rem;letter-spacing:-.02em;}
+h2{font-size:1.3rem;margin-top:1.6rem;padding-bottom:.4rem;border-bottom:2px solid var(--accent);}
+h3{font-size:1.1rem;margin-top:1.4rem;color:var(--text);}
+h4{font-size:1rem;margin:0;}
+p{margin:.6rem 0;}
+ul,ol{margin:.5rem 0 .5rem 1.1rem;padding:0;}
+li{margin:.3rem 0;}
+strong{color:var(--text);}
+code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--code-bg);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:.08em .35em;
+  font-size:.88em;
+  color:var(--code-text);
+}
+
+/* ============================================================
+   BARRA DE PROGRESO DE LECTURA
+   ============================================================ */
+.progress-bar{
+  position:fixed;top:0;left:0;right:0;height:4px;
+  background:transparent;z-index:60;
+}
+.progress-bar span{
+  display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,#1e3a5f,#3b82f6,#38bdf8);
+  transition:width .12s linear;
+}
+
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
+.toolbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;
+  padding:.6rem .8rem;
+  background:color-mix(in srgb, var(--card) 92%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+}
+.brand{
+  font-weight:800;font-size:.95rem;letter-spacing:.02em;
+  color:var(--text);white-space:nowrap;
+}
+.brand b{color:#60a5fa;}
+.tools{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;}
+.tools input[type=search]{
+  background:var(--card2);color:var(--text);
+  border:1px solid var(--border);border-radius:9px;
+  padding:.42rem .6rem;font-size:.85rem;width:190px;max-width:46vw;
+}
+.tools input[type=search]:focus{outline:2px solid #3b82f6;outline-offset:1px;}
+.tools button{
+  background:var(--card2);color:var(--text);
+  border:1px solid var(--border);border-radius:9px;
+  padding:.42rem .6rem;font-size:.85rem;font-weight:700;cursor:pointer;
+  transition:background .15s,border-color .15s,transform .1s;
+}
+.tools button:hover{background:var(--accent);border-color:#3b82f6;}
+.tools button:active{transform:scale(.96);}
+.search-info{
+  font-size:.75rem;color:var(--muted);width:100%;display:none;
+}
+.search-info.on{display:block;}
+
+/* ============================================================
+   PESTAÑAS
+   ============================================================ */
+.tabs{
+  display:flex;gap:.3rem;overflow-x:auto;
+  padding:.55rem .8rem;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+  position:sticky;top:49px;z-index:45;
+  scrollbar-width:thin;
+}
+.tabs::-webkit-scrollbar{height:5px;}
+.tabs::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px;}
+.tab{
+  flex:0 0 auto;
+  background:transparent;color:var(--muted);
+  border:1px solid transparent;border-radius:20px;
+  padding:.42rem .85rem;font-size:.78rem;font-weight:800;
+  letter-spacing:.06em;cursor:pointer;white-space:nowrap;
+  transition:all .18s;
+}
+.tab:hover{color:var(--text);background:var(--card);}
+.tab.active{
+  background:var(--accent);
+  color:#dbeafe;
+  border-color:#3b82f6;
+  box-shadow:0 0 0 1px rgba(59,130,246,.35), 0 4px 14px rgba(30,58,95,.5);
+}
+html.light .tab.active{color:#0b2a52;}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+main{max-width:1000px;margin:0 auto;padding:1rem .85rem 4rem;}
+.panel{display:none;animation:fadeUp .35s ease;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+/* ============================================================
+   COMPONENTES
+   ============================================================ */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:.9rem 1rem;
+  margin:.9rem 0;
+  box-shadow:var(--shadow);
+}
+.card.accent{border-left:4px solid #3b82f6;}
+.card.ok{border-left:4px solid var(--ok);}
+.card.warn{border-left:4px solid var(--warn);}
+.card.bad{border-left:4px solid var(--bad);}
+.lead{font-size:1.02rem;color:var(--muted);}
+.muted{color:var(--muted);font-size:.9rem;}
+.tag{
+  display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;padding:.18rem .5rem;border-radius:20px;
+  background:var(--accent);color:#cfe4ff;border:1px solid #2b4d7a;
+}
+html.light .tag{color:#12315c;}
+.tag.easy{background:#064e3b;color:#a7f3d0;border-color:#059669;}
+.tag.medium{background:#78350f;color:#fde68a;border-color:#d97706;}
+.tag.hard{background:#7f1d1d;color:#fecaca;border-color:#dc2626;}
+html.light .tag.easy{background:#d1fae5;color:#065f46;border-color:#059669;}
+html.light .tag.medium{background:#fef3c7;color:#78350f;border-color:#d97706;}
+html.light .tag.hard{background:#fee2e2;color:#7f1d1d;border-color:#dc2626;}
+.grid{display:grid;gap:.8rem;}
+@media(min-width:660px){ .grid.two{grid-template-columns:1fr 1fr;} .grid.three{grid-template-columns:repeat(3,1fr);} }
+
+/* Tablas */
+.table-wrap{overflow-x:auto;margin:.9rem 0;border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:520px;}
+th,td{padding:.6rem .7rem;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
+th{background:var(--accent);color:#dbeafe;font-size:.76rem;letter-spacing:.05em;text-transform:uppercase;}
+html.light th{color:#0b2a52;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--card2);}
+
+/* Prompts */
+.prompt{position:relative;margin:1rem 0;}
+.prompt pre{
+  margin:0;
+  padding:1rem 5.6rem 1rem 1rem;
+  background:var(--code-bg);
+  border:1px solid var(--border);
+  border-left:4px solid #3b82f6;
+  border-radius:12px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.9rem;line-height:1.6;
+  color:var(--code-text);
+}
+.copyBtn{
+  position:absolute;top:.55rem;right:.55rem;
+  background:#1e3a5f;color:#dbeafe;
+  border:1px solid #3b82f6;border-radius:8px;
+  font-size:.68rem;font-weight:800;letter-spacing:.08em;
+  padding:.34rem .55rem;cursor:pointer;transition:all .15s;
+}
+.copyBtn:hover{background:#2b5488;}
+.copyBtn.done{background:#166534;border-color:#22c55e;color:#dcfce7;}
+
+/* ============================================================
+   PESTAÑA PROMPTS (nueva)
+   ============================================================ */
+.prompt-index ol{list-style:none;margin:.4rem 0 0;padding:0;counter-reset:pi;}
+.prompt-index li{
+  counter-increment:pi;
+  padding:.5rem .2rem .5rem 2.4rem;
+  position:relative;
+  border-bottom:1px dashed var(--border);
+  font-size:.92rem;
+}
+.prompt-index li:last-child{border-bottom:none;}
+.prompt-index li::before{
+  content:counter(pi);
+  position:absolute;left:0;top:.55rem;
+  width:1.65rem;height:1.65rem;
+  display:flex;align-items:center;justify-content:center;
+  background:#1e3a5f;color:#dbeafe;
+  border-radius:50%;font-size:.72rem;font-weight:900;
+  border:1px solid #3b82f6;
+}
+html.light .prompt-index li::before{color:#0b2a52;}
+.prompt-index a{
+  text-decoration:none;font-weight:700;
+  display:inline;
+}
+.prompt-index a:hover{text-decoration:underline;}
+.prompt-index .idx-tag{
+  font-size:.62rem;margin-left:.35rem;vertical-align:middle;
+}
+
+.promptBox{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:1rem 1rem 1.1rem;
+  margin:1.1rem 0;
+  box-shadow:var(--shadow);
+  scroll-margin-top:120px;
+}
+.promptBox:target{
+  border-color:#3b82f6;
+  box-shadow:0 0 0 2px rgba(59,130,246,.35), var(--shadow);
+}
+.pb-head{
+  display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;
+  margin-bottom:.35rem;
+}
+.pb-head h3{margin:0;font-size:1.05rem;line-height:1.3;}
+.pb-desc,.pb-use{font-size:.9rem;margin:.4rem 0;}
+.pb-desc strong,.pb-use strong{color:var(--link);}
+
+/* Pasos */
+.step{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:.85rem 1rem;
+  margin:.75rem 0;
+  position:relative;
+}
+.step h4{display:flex;align-items:center;gap:.55rem;margin-bottom:.45rem;font-size:.98rem;}
+.num{
+  flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;
+  background:#1e3a5f;color:#dbeafe;font-size:.8rem;font-weight:900;
+  border:1px solid #3b82f6;
+}
+.step p{margin:.3rem 0;font-size:.9rem;}
+.res{color:var(--ok);}
+.fail{color:var(--warn);}
+.res strong,.fail strong{color:inherit;}
+
+/* Listas con iconos */
+.check-list{list-style:none;margin-left:0;}
+.check-list li{padding-left:1.6rem;position:relative;}
+.check-list li::before{
+  content:"✔";position:absolute;left:0;top:0;color:var(--ok);font-weight:900;
+}
+.cross-list{list-style:none;margin-left:0;}
+.cross-list li{padding-left:1.6rem;position:relative;}
+.cross-list li::before{
+  content:"✖";position:absolute;left:0;top:0;color:var(--bad);font-weight:900;
+}
+
+/* Escalera de autonomía */
+.ladder{margin:1rem 0;}
+.ladder div{
+  border-radius:10px;padding:.6rem .8rem;margin:.4rem 0;
+  border:1px solid var(--border);font-size:.86rem;
+}
+.ladder .n1{background:var(--card);width:100%;}
+.ladder .n2{background:var(--card2);width:92%;border-color:#2b4d7a;}
+.ladder .n3{background:var(--accent);width:84%;border-color:#3b82f6;}
+.ladder b{display:block;font-size:.92rem;}
+
+/* Acordeones */
+details.acc{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:.6rem .9rem;
+  margin:.6rem 0;
+}
+details.acc summary{
+  cursor:pointer;font-weight:700;font-size:.93rem;list-style:none;
+  display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary::before{
+  content:"▸";color:#60a5fa;font-weight:900;transition:transform .2s;
+}
+details.acc[open] summary::before{transform:rotate(90deg);}
+details.acc[open]{border-color:#2b4d7a;}
+details.acc .body{padding-top:.5rem;font-size:.9rem;}
+
+/* Checklist */
+.check-item{
+  display:flex;gap:.6rem;align-items:flex-start;
+  padding:.5rem .6rem;border-radius:10px;
+  border:1px solid var(--border);background:var(--card);
+  margin:.4rem 0;font-size:.9rem;cursor:pointer;
+}
+.check-item input{
+  margin-top:.25rem;width:18px;height:18px;accent-color:#3b82f6;flex:0 0 auto;cursor:pointer;
+}
+.check-item.done{opacity:.6;}
+.check-item.done span{text-decoration:line-through;}
+.mini-bar{
+  height:9px;border-radius:6px;background:var(--card2);
+  border:1px solid var(--border);overflow:hidden;margin:.5rem 0;
+}
+.mini-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b82f6,#38bdf8);transition:width .3s;}
+
+/* Hero */
+.hero{
+  margin:0 0 1rem;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid var(--accent);
+  box-shadow:var(--shadow);
+}
+.svg-hero{display:block;width:100%;height:auto;}
+
+/* Constructor de prompts */
+.builder label{display:block;font-size:.82rem;font-weight:800;letter-spacing:.04em;margin:.7rem 0 .25rem;color:var(--muted);text-transform:uppercase;}
+.builder input{
+  width:100%;background:var(--card2);color:var(--text);
+  border:1px solid var(--border);border-radius:9px;
+  padding:.5rem .65rem;font-size:.9rem;
+}
+.builder input:focus{outline:2px solid #3b82f6;outline-offset:1px;}
+.builder .btn-main{
+  margin-top:.9rem;background:#1e3a5f;color:#dbeafe;
+  border:1px solid #3b82f6;border-radius:10px;
+  padding:.55rem 1rem;font-weight:800;font-size:.85rem;cursor:pointer;
+}
+.builder .btn-main:hover{background:#2b5488;}
+
+/* Botón volver arriba */
+.to-top{
+  position:fixed;right:14px;bottom:14px;z-index:55;
+  width:44px;height:44px;border-radius:50%;
+  background:#1e3a5f;color:#dbeafe;border:1px solid #3b82f6;
+  font-size:1.1rem;font-weight:900;cursor:pointer;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .2s;
+  box-shadow:var(--shadow);
+}
+.to-top.on{opacity:1;pointer-events:auto;}
+.to-top:hover{transform:translateY(-3px);}
+
+/* Toast */
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);
+  background:#1e3a5f;color:#dbeafe;border:1px solid #3b82f6;
+  border-radius:10px;padding:.55rem 1rem;font-size:.85rem;font-weight:700;
+  opacity:0;pointer-events:none;transition:all .25s;z-index:70;
+}
+.toast.on{opacity:1;transform:translate(-50%,0);}
+
+/* Búsqueda */
+mark.search-hl{background:#fde68a;color:#111827;border-radius:3px;padding:0 2px;}
+
+/* Créditos */
+.credits-name{
+  font-size:clamp(1.8rem,7vw,3rem);
+  font-weight:900;letter-spacing:-.03em;
+  background:linear-gradient(90deg,#60a5fa,#38bdf8,#a5b4fc);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin:.4rem 0;
+  line-height:1.1;
+}
+html.light .credits-name{
+  background:linear-gradient(90deg,#1d4ed8,#0369a1,#4338ca);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.stamp{
+  display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.85rem;background:var(--card2);border:1px dashed #3b82f6;
+  border-radius:8px;padding:.5rem .8rem;color:var(--code-text);
+}
+
+/* Definiciones SVG ocultas */
+.svg-defs{position:absolute;width:0;height:0;overflow:hidden;}
+
+/* ============================================================
+   EJERCICIOS (estilos de apoyo)
+   ============================================================ */
+.ex-meta{
+  display:flex;gap:.35rem;flex-wrap:wrap;align-items:center;
+}
+.ex-q{
+  font-weight:600;color:var(--text);
+}
+.ex-sub{
+  font-size:.85rem;color:var(--muted);margin:.15rem 0 0;
+}
+.ex-block{
+  margin:.55rem 0;
+  padding:.55rem .75rem;
+  border-left:3px solid #3b82f6;
+  background:var(--card2);
+  border-radius:8px;
+  font-size:.9rem;
+}
+.ex-block.ok{border-left-color:var(--ok);}
+.ex-block.warn{border-left-color:var(--warn);}
+.ex-block.bad{border-left-color:var(--bad);}
+.ex-block b{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem;}
+.ex-pairs{
+  display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.5rem 0;
+}
+.ex-pairs > div{
+  background:var(--card2);border:1px solid var(--border);border-radius:9px;
+  padding:.5rem .65rem;font-size:.86rem;
+}
+@media(max-width:520px){ .ex-pairs{grid-template-columns:1fr;} }
+.ex-pairs h5{margin:0 0 .3rem;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.ex-pairs ul{margin:0;padding-left:1.1rem;}
+
+/* ============================================================
+   IMPRESIÓN / PDF
+   ============================================================ */
+@media print{
+  @page{ size:A4 portrait; margin:14mm 12mm; }
+
+  html,body{
+    background:#ffffff !important;
+    color:#000000 !important;
+    margin:0 !important;
+    padding:0 !important;
+    font-size:11pt !important;
+  }
+  .toolbar,.tabs,.to-top,.copyBtn,.progress-bar,.svg-hero,.svg-credits,nav,.search-hl,.toast,.search-info{
+    display:none !important;
+  }
+  .panel{
+    display:block !important;
+    page-break-after:auto !important;
+    animation:none !important;
+    padding:0 !important;
+    margin:0 !important;
+  }
+  main{max-width:100% !important;padding:0 !important;margin:0 !important;}
+
+  .card,.step,details.acc,.promptBox{
+    background:#ffffff !important;
+    border:1px solid #999 !important;
+    box-shadow:none !important;
+    color:#000 !important;
+    page-break-inside:avoid;
+  }
+  .card.accent,.card.ok,.card.warn,.card.bad{border-left:3px solid #444 !important;}
+
+  h1,h2,h3,h4{color:#000 !important;page-break-after:avoid;}
+  h2{border-bottom:1.5px solid #000 !important;}
+  p,li,td,th,strong,span,div{color:#000 !important;}
+  .muted,.lead{color:#333 !important;}
+
+  .tag{
+    background:#e8eef7 !important;color:#000 !important;border:1px solid #666 !important;
+  }
+
+  .table-wrap{overflow:visible !important;border:1px solid #666 !important;page-break-inside:avoid;}
+  table{min-width:0 !important;width:100% !important;font-size:9.5pt !important;}
+  th{background:#e8eef7 !important;color:#000 !important;border:1px solid #666 !important;}
+  td{border:1px solid #999 !important;}
+
+  pre,.prompt pre{
+    background:#ffffff !important;
+    color:#000 !important;
+    border:1px solid #666 !important;
+    border-left:3px solid #000 !important;
+    white-space:pre-wrap !important;
+    overflow:visible !important;
+    padding:8px !important;
+    font-size:9.5pt !important;
+    page-break-inside:auto;
+  }
+  .prompt{padding:0 !important;}
+  code{background:#f2f2f2 !important;color:#000 !important;border:1px solid #bbb !important;}
+
+  .ladder div{background:#fff !important;border:1px solid #666 !important;}
+  .num{background:#fff !important;color:#000 !important;border:1px solid #000 !important;}
+  .mini-bar{display:none !important;}
+  details.acc{page-break-inside:avoid;}
+  details.acc .body{display:block !important;}
+  a{color:#000 !important;text-decoration:underline;}
+  .stamp{background:#fff !important;border:1px dashed #000 !important;color:#000 !important;}
+  .credits-name{
+    -webkit-text-fill-color:#000 !important;
+    color:#000 !important;
+    background:none !important;
+  }
+  .prompt-index li::before{
+    background:#fff !important;color:#000 !important;border:1px solid #000 !important;
+  }
+  .ex-block{background:#fff !important;border-left:3px solid #444 !important;}
+  .ex-pairs > div{background:#fff !important;border:1px solid #666 !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     DEFINICIÓN ÚNICA DEL SVG ANIMADO (se reutiliza con <use>)
+     ============================================================ -->
+<svg class="svg-defs" aria-hidden="true" focusable="false">
+  <symbol id="svgHero" viewBox="0 0 460 340">
+    <defs>
+      <radialGradient id="heroBg" cx="50%" cy="50%" r="72%">
+        <stop offset="0%" stop-color="#16233d"/>
+        <stop offset="100%" stop-color="#0a0e1a"/>
+      </radialGradient>
+      <linearGradient id="heroLine" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.35"/>
+      </linearGradient>
+      <radialGradient id="heroCore" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#1e3a5f" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <rect x="0" y="0" width="460" height="340" rx="18" fill="url(#heroBg)"/>
+    <rect x="1" y="1" width="458" height="338" rx="17" fill="none" stroke="#1e3a5f" stroke-width="2"/>
+
+    <g fill="none">
+      <circle cx="230" cy="165" r="62" stroke="#38bdf8" stroke-width="1.6" stroke-dasharray="10 14" opacity="0.75">
+        <animateTransform attributeName="transform" type="rotate" from="0 230 165" to="360 230 165" dur="20s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="230" cy="165" r="86" stroke="#3b82f6" stroke-width="1.1" stroke-dasharray="4 18" opacity="0.45">
+        <animateTransform attributeName="transform" type="rotate" from="360 230 165" to="0 230 165" dur="30s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <g stroke="url(#heroLine)" stroke-width="2" stroke-linecap="round" stroke-dasharray="7 9" fill="none">
+      <line x1="230" y1="165" x2="95" y2="78">
+        <animate attributeName="stroke-dashoffset" from="32" to="0" dur="1.5s" repeatCount="indefinite"/>
+      </line>
+      <line x1="230" y1="165" x2="365" y2="78">
+        <animate attributeName="stroke-dashoffset" from="32" to="0" dur="1.5s" begin="0.35s" repeatCount="indefinite"/>
+      </line>
+      <line x1="230" y1="165" x2="95" y2="252">
+        <animate attributeName="stroke-dashoffset" from="32" to="0" dur="1.5s" begin="0.7s" repeatCount="indefinite"/>
+      </line>
+      <line x1="230" y1="165" x2="365" y2="252">
+        <animate attributeName="stroke-dashoffset" from="32" to="0" dur="1.5s" begin="1.05s" repeatCount="indefinite"/>
+      </line>
+    </g>
+
+    <g fill="#7dd3fc">
+      <circle r="4" cx="230" cy="165">
+        <animate attributeName="cx" values="230;95" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="165;78" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="4" cx="230" cy="165">
+        <animate attributeName="cx" values="230;365" dur="1.8s" begin="0.45s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="165;78" dur="1.8s" begin="0.45s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.45s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="4" cx="230" cy="165">
+        <animate attributeName="cx" values="230;95" dur="1.8s" begin="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="165;252" dur="1.8s" begin="0.9s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="0.9s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="4" cx="230" cy="165">
+        <animate attributeName="cx" values="230;365" dur="1.8s" begin="1.35s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="165;252" dur="1.8s" begin="1.35s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="1.8s" begin="1.35s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <circle cx="230" cy="165" r="46" fill="url(#heroCore)">
+      <animate attributeName="r" values="42;56;42" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.65;1;0.65" dur="4s" repeatCount="indefinite"/>
+    </circle>
+
+    <g>
+      <circle cx="95" cy="78" r="27" fill="#0f172a" stroke="#3b82f6" stroke-width="2">
+        <animate attributeName="r" values="27;30;27" dur="3s" begin="0s" repeatCount="indefinite"/>
+      </circle>
+      <text x="95" y="84" text-anchor="middle" font-size="15" font-weight="800" fill="#7dd3fc" font-family="system-ui,Segoe UI,Arial,sans-serif">1</text>
+      <text x="95" y="124" text-anchor="middle" font-size="12" fill="#cbd5e1" font-family="system-ui,Segoe UI,Arial,sans-serif">Operador</text>
+    </g>
+
+    <g>
+      <circle cx="365" cy="78" r="27" fill="#0f172a" stroke="#3b82f6" stroke-width="2">
+        <animate attributeName="r" values="27;30;27" dur="3s" begin="0.75s" repeatCount="indefinite"/>
+      </circle>
+      <text x="365" y="84" text-anchor="middle" font-size="15" font-weight="800" fill="#7dd3fc" font-family="system-ui,Segoe UI,Arial,sans-serif">2</text>
+      <text x="365" y="124" text-anchor="middle" font-size="12" fill="#cbd5e1" font-family="system-ui,Segoe UI,Arial,sans-serif">Productor</text>
+    </g>
+
+    <g>
+      <circle cx="95" cy="252" r="27" fill="#0f172a" stroke="#3b82f6" stroke-width="2">
+        <animate attributeName="r" values="27;30;27" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+      </circle>
+      <text x="95" y="258" text-anchor="middle" font-size="15" font-weight="800" fill="#7dd3fc" font-family="system-ui,Segoe UI,Arial,sans-serif">3</text>
+      <text x="95" y="298" text-anchor="middle" font-size="12" fill="#cbd5e1" font-family="system-ui,Segoe UI,Arial,sans-serif">Auditor</text>
+    </g>
+
+    <g>
+      <circle cx="365" cy="252" r="27" fill="#0f172a" stroke="#3b82f6" stroke-width="2">
+        <animate attributeName="r" values="27;30;27" dur="3s" begin="2.25s" repeatCount="indefinite"/>
+      </circle>
+      <text x="365" y="258" text-anchor="middle" font-size="15" font-weight="800" fill="#7dd3fc" font-family="system-ui,Segoe UI,Arial,sans-serif">4</text>
+      <text x="365" y="298" text-anchor="middle" font-size="12" fill="#cbd5e1" font-family="system-ui,Segoe UI,Arial,sans-serif">Preparador</text>
+    </g>
+
+    <circle cx="230" cy="165" r="30" fill="#0f172a" stroke="#38bdf8" stroke-width="2">
+      <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="2.4s" repeatCount="indefinite"/>
+    </circle>
+    <text x="230" y="172" text-anchor="middle" font-size="17" font-weight="800" fill="#e2e8f0" font-family="system-ui,Segoe UI,Arial,sans-serif">IA</text>
+  </symbol>
+</svg>
+
+<!-- Barra de progreso de lectura -->
+<div class="progress-bar" aria-hidden="true"><span id="progressFill"></span></div>
+
+<!-- Toolbar -->
+<header class="toolbar">
+  <div class="brand">🤖 <b>4 Agentes</b> de IA</div>
+  <div class="tools">
+    <input id="search" type="search" placeholder="🔍 Buscar…" aria-label="Buscar en el tutorial">
+    <button id="btnFontMinus" title="Reducir tamaño del texto" aria-label="Reducir texto">A−</button>
+    <button id="btnFontPlus" title="Aumentar tamaño del texto" aria-label="Aumentar texto">A+</button>
+    <button id="btnTheme" title="Cambiar modo claro / oscuro" aria-label="Cambiar tema">☀︎</button>
+    <button id="btnPrint" title="Imprimir o guardar como PDF" aria-label="Imprimir">🖨</button>
+  </div>
+  <div class="search-info" id="searchInfo"></div>
+</header>
+
+<!-- Pestañas -->
+<nav class="tabs" id="tabs" aria-label="Secciones del tutorial">
+  <button class="tab active" data-tab="inicio">INICIO</button>
+  <button class="tab" data-tab="conceptos">CONCEPTOS</button>
+  <button class="tab" data-tab="procedimiento">PROCEDIMIENTO</button>
+  <button class="tab" data-tab="practica">PRÁCTICA</button>
+  <button class="tab" data-tab="errores">ERRORES</button>
+  <button class="tab" data-tab="resumen">RESUMEN</button>
+  <button class="tab" data-tab="fuentes">FUENTES</button>
+  <button class="tab" data-tab="prompts">PROMPTS</button>
+  <button class="tab" data-tab="ejercicios">EJERCICIOS</button>
+  <button class="tab" data-tab="creditos">CRÉDITOS</button>
+</nav>
+
+<main id="contenido">
+
+  <!-- ==========================================================
+       INICIO
+       ========================================================== -->
+  <section class="panel active" id="inicio">
+    <div class="hero">
+      <svg class="svg-hero" viewBox="0 0 460 340" role="img" aria-label="Esquema animado: cuatro agentes de IA conectados a un núcleo central">
+        <use href="#svgHero"></use>
+      </svg>
+    </div>
+
+    <h1>Cuatro agentes de IA para tus proyectos</h1>
+    <p class="lead">
+      Deja de usar la IA como un simple buscador de respuestas. Aprende a montar un
+      <strong>equipo digital de cuatro agentes</strong> que organiza tu día, crea tus entregables,
+      audita tus riesgos y entrena tus negociaciones.
+    </p>
+
+    <div class="card accent">
+      <h3 style="margin-top:0">¿Qué vas a aprender?</h3>
+      <ul class="check-list">
+        <li>Qué es un <strong>agente de IA</strong> y en qué se diferencia de un chatbot normal.</li>
+        <li>Los <strong>4 roles</strong>: Operador, Productor, Auditor y Preparador.</li>
+        <li>La <strong>estructura en 5 partes</strong> que convierte una orden vaga en un prompt profesional.</li>
+        <li>Cómo construir cada agente <strong>paso a paso</strong>, con prompts listos para copiar.</li>
+        <li>Cómo delegar de forma segura usando la <strong>Escalera de Autonomía</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <h3 style="margin-top:0">🎯 ¿Para qué sirve?</h3>
+        <p>Sirve para <strong>delegar la carga operativa pesada</strong> (leer correos, ordenar prioridades, montar presentaciones, revisar contratos) y reservar tu energía mental para lo importante: <strong>analizar, dirigir y decidir</strong>.</p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🧰 ¿Qué necesitas antes de empezar?</h3>
+        <ul>
+          <li>Un ordenador o móvil con navegador.</li>
+          <li>Una cuenta en una plataforma de IA (Claude, ChatGPT o Gemini).</li>
+          <li>Acceso a tus herramientas: correo, calendario, carpeta de archivos.</li>
+          <li>Un proyecto real sobre el que practicar.</li>
+        </ul>
+        <p class="muted">No necesitas saber programar. Todo se escribe en lenguaje natural.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">🏁 Objetivos del tutorial</h3>
+      <ol>
+        <li>Entender el concepto de agente de IA con una analogía cotidiana.</li>
+        <li>Saber redactar un prompt estructurado en 5 partes sin olvidar ninguna.</li>
+        <li>Construir y probar los cuatro agentes uno por uno.</li>
+        <li>Aplicar límites de seguridad para que el agente nunca actúe sin tu permiso.</li>
+        <li>Terminar con una checklist y ejercicios resueltos.</li>
+      </ol>
+    </div>
+
+    <div class="card warn">
+      <h3 style="margin-top:0">🧭 Cómo usar este tutorial</h3>
+      <ol>
+        <li>Recorre las pestañas <strong>en orden</strong>: primero CONCEPTOS, luego PROCEDIMIENTO.</li>
+        <li>Cuando veas un bloque azul con un prompt, pulsa <strong>COPIAR</strong> y llévalo a tu plataforma de IA.</li>
+        <li>Adapta siempre el prompt a <strong>tu proyecto real</strong>: cambia nombres, fechas y herramientas.</li>
+        <li>Marca la checklist de aprendizaje conforme avances: se guarda en tu navegador.</li>
+        <li>Usa el buscador (arriba) para localizar cualquier término al instante.</li>
+      </ol>
+    </div>
+
+    <h2>✅ Checklist de aprendizaje</h2>
+    <p class="muted">Tu progreso se guarda automáticamente en este navegador.</p>
+    <div class="mini-bar"><i id="checkFill"></i></div>
+    <p class="muted" id="checkText">0 de 8 completados (0%)</p>
+
+    <div id="checklist">
+      <label class="check-item"><input type="checkbox" data-check="c1"><span>Entiendo qué es un agente de IA y en qué se diferencia de un chatbot.</span></label>
+      <label class="check-item"><input type="checkbox" data-check="c2"><span>Conozco los 4 roles: Operador, Productor, Auditor y Preparador.</span></label>
+      <label class="check-item"><input type="checkbox" data-check="c3"><span>Sé escribir un prompt con las 5 partes: Trabajo, Herramienta, Criterios, Resultado y Límite.</span></label>
+      <label class="check-item"><input type="checkbox" data-check="c4"><span>He conectado al menos una herramienta (Gmail, Calendar o una carpeta de archivos).</span></label>
+      <label class="check-item"><input type="checkbox" data-check="c5"><span>He creado mi primer prompt de Operador y he recibido el informe de prioridades.</span></label>
+      <label class="check-item"><input type="checkbox" data-check="c6"><span>He pedido un entregable al Productor (presentación, informe o tabla).</span></label>
+      <label class="check-item"><input type="checkbox" data-check="c7"><span>He auditado un documento con el Auditor y tengo mi tabla de riesgos.</span></label>
+      <label class="check-item"><input type="checkbox" data-check="c8"><span>He ensayado una conversación difícil con el Preparador.</span></label>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       CONCEPTOS
+       ========================================================== -->
+  <section class="panel" id="conceptos">
+    <h1>Conceptos fundamentales</h1>
+    <p class="lead">Antes de construir nada, entendamos <strong>qué</strong> es un agente, <strong>para qué</strong> sirve y <strong>por qué</strong> importa.</p>
+
+    <h2>1. ¿Qué es un agente de IA y para qué sirve?</h2>
+    <div class="card">
+      <p>Hasta hace poco, la mayoría de la gente usaba la IA para <strong>preguntas aisladas</strong> o para pedir resúmenes de texto. Un <strong>agente de IA</strong> va un paso más allá: es un sistema que recibe una <strong>tarea completa de principio a fin</strong>, busca la información que necesita, utiliza herramientas digitales y te entrega un <strong>resultado profesional y terminado</strong>.</p>
+    </div>
+
+    <h3>Analogía cotidiana: el transeúnte y el asistente</h3>
+    <div class="grid two">
+      <div class="card bad">
+        <p><span class="tag">Chatbot tradicional</span></p>
+        <p>Es como preguntarle a un <strong>transeúnte en la calle</strong> si sabe dónde está el mejor café. Te da una respuesta puntual y ahí termina la interacción.</p>
+        <p class="muted">Una pregunta → una respuesta. Sin memoria del objetivo, sin herramientas, sin entregable.</p>
+      </div>
+      <div class="card ok">
+        <p><span class="tag">Agente de IA</span></p>
+        <p>Es como contratar a un <strong>asistente ejecutivo personal</strong>. Le pides que busque la mejor cafetería, revise las opiniones, consulte los horarios de tu agenda, reserve una mesa para dos y te envíe la confirmación al correo.</p>
+        <p class="muted">Un objetivo → varios pasos → herramientas → resultado entregado.</p>
+      </div>
+    </div>
+
+    <div class="card accent">
+      <h4>El ciclo «Razonar y Actuar»</h4>
+      <p>Internamente, un agente no hace todo de golpe. Repite un ciclo:</p>
+      <ol>
+        <li><strong>Analiza</strong> el objetivo que le has dado.</li>
+        <li><strong>Elige una herramienta</strong> (correo, calendario, buscador, archivo).</li>
+        <li><strong>Evalúa el resultado</strong> que obtiene.</li>
+        <li><strong>Decide el siguiente paso</strong> y vuelve a empezar hasta terminar.</li>
+      </ol>
+    </div>
+
+    <h2>2. ¿Por qué es crucial aprender a utilizarlos hoy?</h2>
+    <div class="card">
+      <p>En el entorno laboral moderno, casi la mitad de las personas sienten que su jornada es <strong>caótica, fragmentada e interrumpida</strong> constantemente por reuniones no planificadas o correos acumulados.</p>
+      <p>El problema principal <strong>no es la falta de tiempo</strong>, sino el <strong>desgaste mental</strong> de saltar continuamente entre aplicaciones para averiguar qué es urgente y qué no.</p>
+      <p>Aprender a construir agentes de IA te permite <strong>delegar la carga operativa pesada</strong> para que tú puedas concentrarte en lo verdaderamente importante: <strong>analizar, dirigir y tomar las decisiones estratégicas finales</strong>.</p>
+    </div>
+
+    <h2>3. Los 4 roles principales para cualquier proyecto</h2>
+    <p>Para gestionar cualquier proyecto de forma ágil, estructura tu equipo digital en <strong>cuatro agentes especializados</strong>:</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Agente</th><th>Rol principal</th><th>Misión en el proyecto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>1. El Operador</strong></td><td>Coordinador</td><td>Revisa correos y calendarios para organizar las prioridades diarias.</td></tr>
+          <tr><td><strong>2. El Productor</strong></td><td>Creador</td><td>Convierte notas sueltas, imágenes y presupuestos en entregables pulidos (presentaciones, informes).</td></tr>
+          <tr><td><strong>3. El Auditor</strong></td><td>Verificador</td><td>Analiza datos, detecta riesgos ocultos y revisa contratos cláusula por cláusula.</td></tr>
+          <tr><td><strong>4. El Preparador</strong></td><td>Entrenador</td><td>Simula conversaciones difíciles (negociaciones, ventas) para poner a prueba tus argumentos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>4. La estructura en 5 partes para definir cualquier agente</h2>
+    <p>Para que un agente funcione exactamente como necesitas, <strong>no debes darle órdenes vagas</strong>. Todo prompt profesional debe incluir <strong>5 elementos obligatorios</strong>:</p>
+
+    <div class="grid two">
+      <div class="card accent"><h4>1. Trabajo</h4><p>Qué tarea específica debe realizar.</p><p class="muted">Ej.: «Revisa los correos de los últimos 7 días sobre Cafetería Bruma».</p></div>
+      <div class="card accent"><h4>2. Herramienta</h4><p>Qué aplicaciones o fuentes debe consultar.</p><p class="muted">Ej.: Gmail, archivos locales, buscador web.</p></div>
+      <div class="card accent"><h4>3. Criterios</h4><p>Cómo debe clasificar, filtrar u organizar la información.</p><p class="muted">Ej.: urgente, decisión pendiente, esperando respuesta, sin acción.</p></div>
+      <div class="card accent"><h4>4. Resultado</h4><p>Qué formato, extensión o estilo debe tener el archivo final.</p><p class="muted">Ej.: lista con responsable, fecha límite y siguiente paso.</p></div>
+      <div class="card accent" style="grid-column:1/-1"><h4>5. Límite</h4><p>Qué acciones tiene <strong>estrictamente prohibido</strong> realizar sin tu confirmación previa.</p><p class="muted">Ej.: «No envíes ni modifiques nada sin mi confirmación».</p></div>
+    </div>
+
+    <h2>5. La Escalera de Autonomía</h2>
+    <p>No debes darle control total a un agente desde el primer minuto. Para delegar de forma segura, aplica esta escalera:</p>
+    <div class="ladder">
+      <div class="n3"><b>Nivel 3 — Ejecución Programada</b>Revisa y actúa automáticamente (ej. informe matutino). Solo tras semanas demostrando que entiende tus prioridades.</div>
+      <div class="n2"><b>Nivel 2 — Asistencia Supervisada</b>Prepara borradores, pero exige tu firma o confirmación antes de enviar o modificar.</div>
+      <div class="n1"><b>Nivel 1 — Visibilidad e Informe</b>Solo busca información y propone soluciones. No toca nada.</div>
+    </div>
+    <div class="card warn">
+      <p><strong>Regla de oro:</strong> empieza siempre en el Nivel 1 y sube un escalón solo cuando el agente haya demostrado que comprende tus prioridades.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       PROCEDIMIENTO
+       ========================================================== -->
+  <section class="panel" id="procedimiento">
+    <h1>Procedimiento: construir los 4 agentes</h1>
+    <p class="lead">
+      A lo largo de todo el tutorial usaremos el mismo caso práctico:
+      <strong>Cafetería Bruma</strong>, un negocio que está organizando su reforma, licencias, catas de café y presupuestos.
+    </p>
+
+    <!-- ============ CAPÍTULO 1 ============ -->
+    <h2>Capítulo 1 · El Agente Operador (organización y prioridades)</h2>
+    <div class="card accent">
+      <h4>Objetivo del Operador</h4>
+      <p>Evitar que tengas que empezar cada mañana reconstruyendo qué está pasando en tu proyecto. Se conecta a tu correo y calendario para <strong>filtrar el ruido</strong> y mostrarte únicamente lo que requiere tu atención.</p>
+    </div>
+
+    <h3>Paso a paso</h3>
+
+    <div class="step">
+      <h4><span class="num">1</span> Seleccionar la plataforma y conectar herramientas</h4>
+      <p><strong>Acción:</strong> abre tu plataforma de IA (Claude Cowork, ChatGPT o Gemini) e integra los conectores de Gmail y Google Calendar.</p>
+      <p><strong>Motivo:</strong> permite que el agente lea directamente la información sin que tengas que copiar y pegar correos o eventos manualmente.</p>
+      <p class="res"><strong>Resultado esperado:</strong> el agente puede ver tu bandeja de entrada y tu agenda.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si no encuentras el conector, comprueba que la integración esté disponible en tu plan y vuelve a iniciar sesión.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">2</span> Escribir el prompt estructurado en 5 partes</h4>
+      <p><strong>Acción:</strong> copia y adapta el prompt profesional que tienes más abajo.</p>
+      <p><strong>Motivo:</strong> un prompt vago te dará un resumen genérico; este formato clasifica las acciones por urgencia real.</p>
+      <p class="res"><strong>Resultado esperado:</strong> un prompt completo con Trabajo, Herramienta, Criterios, Resultado y Límite.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si la respuesta es superficial, revisa que no falte ninguna de las 5 partes.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">3</span> Ejecutar y analizar el informe inicial de prioridades</h4>
+      <p><strong>Acción:</strong> permite que el agente ejecute su ciclo de «razonar y actuar» (buscar, interpretar y clasificar).</p>
+      <p><strong>Motivo:</strong> el agente identificará problemas urgentes (como plazos vencidos de potencia eléctrica o cruces de reuniones) sin alterar nada de tu cuenta.</p>
+      <p class="res"><strong>Resultado esperado:</strong> una lista de prioridades clasificada con responsables y fechas.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si el agente intenta enviar o modificar algo, detén la tarea y refuerza el apartado «Límite».</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">4</span> Cruzar la información con el Calendario</h4>
+      <p><strong>Acción:</strong> envía la segunda instrucción para evaluar la agenda de los próximos días.</p>
+      <p><strong>Motivo:</strong> detecta si tienes tiempo libre suficiente para preparar reuniones clave o tomar decisiones estratégicas.</p>
+      <p class="res"><strong>Resultado esperado:</strong> un mapa de conflictos y de huecos libres en tu agenda.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si no detecta conflictos, indica explícitamente el rango de días a revisar.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">5</span> Configurar la ejecución automática diaria</h4>
+      <p><strong>Acción:</strong> programa la tarea para que se ejecute todas las mañanas a primera hora.</p>
+      <p><strong>Motivo:</strong> tendrás un informe listo en tu pantalla antes de empezar a trabajar cada día.</p>
+      <p class="res"><strong>Resultado esperado:</strong> un informe matutino automático (Nivel 3 de autonomía).</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si el resultado empeora, vuelve al Nivel 2 (supervisado) durante unos días.</p>
+    </div>
+
+    <h3>Prompts del Agente Operador</h3>
+
+    <h4>❌ Prompt simple (incorrecto / poco útil)</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pMalo1">"Resuma todos los correos recibidos durante el día de ayer relacionados con la cafetería".</pre>
+      <button class="copyBtn" data-copy-target="pMalo1">COPIAR</button>
+    </div>
+
+    <h4>✅ Prompt estructurado en 5 partes (correcto / profesional)</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pOper1">"Revisa los correos de los últimos 7 días sobre cafetería Bruma. Utiliza Gmail. Clasifícalos en responder hoy, decisión pendiente, esperando respuesta y sin acción. Prioriza lo que afecte a la licencia, la reforma, el presupuesto o la apertura. Indica el responsable, la fecha límite y el siguiente paso. Si hace falta responder, prepara un borrador breve. No envíes ni modifiques nada sin mi confirmación".</pre>
+      <button class="copyBtn" data-copy-target="pOper1">COPIAR</button>
+    </div>
+
+    <h4>📅 Prompt para cruzar correos con el Calendario</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pOper2">"Cruza las prioridades que acabamos de encontrar en Gmail con mi calendario de los próximos 3 días. Quiero que detectes posibles conflictos, compruebes qué reuniones necesitan preparación y me digas para qué decisiones importantes no he reservado tiempo. De momento solo puedes proponer cambios, no puedes modificar nada sin preguntarlo".</pre>
+      <button class="copyBtn" data-copy-target="pOper2">COPIAR</button>
+    </div>
+
+    <h3>Tabla comparativa: prompt simple vs. prompt estructurado</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Aspecto</th><th>Prompt simple</th><th>Prompt estructurado (5 partes)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Resultado</strong></td><td>Un texto largo mezclando datos importantes con irrelevantes.</td><td>Una lista organizada por nivel de urgencia y plazos.</td></tr>
+          <tr><td><strong>Accionabilidad</strong></td><td>Te obliga a leer todo de nuevo para decidir qué hacer.</td><td>Prepara borradores de respuesta y propone cambios en la agenda.</td></tr>
+          <tr><td><strong>Seguridad</strong></td><td>Riesgo de malinterpretar la orden.</td><td><strong>Límite claro:</strong> prohibido enviar o borrar correos sin permiso.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card bad">
+      <h4>Error común y cómo evitarlo</h4>
+      <p><strong>Error:</strong> darle permisos automáticos de envío de correos desde el primer día.</p>
+      <p><strong>Cómo evitarlo:</strong> mantén siempre la regla de <em>«no enviar ni modificar nada sin confirmación»</em> hasta comprobar que el agente entiende bien tus prioridades.</p>
+    </div>
+
+    <div class="card ok">
+      <h4>Resumen del Capítulo 1</h4>
+      <p>El Operador pone orden en la bandeja de entrada y el calendario. No sustituye tu criterio, pero te entrega las prioridades clasificadas y los borradores listos para revisión.</p>
+    </div>
+
+    <!-- ============ CAPÍTULO 2 ============ -->
+    <h2>Capítulo 2 · El Agente Productor (creación de entregables)</h2>
+    <div class="card accent">
+      <h4>Objetivo del Productor</h4>
+      <p>Toma carpetas llenas de material desordenado (notas breves, fotografías, presupuestos en PDF, imágenes de referencia) y las transforma en un <strong>entregable estructurado y listo para presentar</strong>.</p>
+    </div>
+
+    <h3>Paso a paso</h3>
+
+    <div class="step">
+      <h4><span class="num">1</span> Organizar la carpeta fuente</h4>
+      <p><strong>Acción:</strong> guarda en una misma carpeta digital todas las notas del proyecto, datos de clientes, presupuestos e ideas visuales.</p>
+      <p><strong>Motivo:</strong> el agente necesita acceder a todo el contexto real para no inventar datos.</p>
+      <p class="res"><strong>Resultado esperado:</strong> una única carpeta con todo el material de trabajo.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si el agente «rellena huecos» con datos falsos, es que falta material en la carpeta.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">2</span> Definir el formato exacto del entregable</h4>
+      <p><strong>Acción:</strong> especifica público objetivo, número de páginas o diapositivas, tiempo de exposición y tono.</p>
+      <p><strong>Motivo:</strong> si das instrucciones vagas, obtendrás una presentación genérica y sin fuerza.</p>
+      <p class="res"><strong>Resultado esperado:</strong> un encargo cerrado y medible.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si el resultado no encaja, revisa si olvidaste indicar la audiencia.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">3</span> Responder las preguntas aclaratorias del agente</h4>
+      <p><strong>Acción:</strong> si la IA detecta huecos de información, te hará preguntas previas. Respóndelas brevemente.</p>
+      <p><strong>Motivo:</strong> asegura que las decisiones clave del proyecto sigan bajo tu dirección.</p>
+      <p class="res"><strong>Resultado esperado:</strong> un borrador alineado con tus decisiones, no con las del modelo.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si el agente no pregunta nada y el resultado suena raro, exige explícitamente que pregunte antes de continuar.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">4</span> Dirigir la edición incremental</h4>
+      <p><strong>Acción:</strong> pide cambios específicos (ej. «haz la propuesta de valor más contundente en la diapositiva 3») en lugar de rehacer todo desde cero.</p>
+      <p><strong>Motivo:</strong> permite pulir el archivo final manteniendo la estructura sólida.</p>
+      <p class="res"><strong>Resultado esperado:</strong> un entregable cada vez más afinado, sin perder lo que ya funcionaba.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si el agente reescribe todo, indícale que <em>solo</em> modifique el punto concreto.</p>
+    </div>
+
+    <h3>Prompt del Agente Productor</h3>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pProd1">"Lee el documento de notas de esta carpeta y crea una presentación de 10 diapositivas para presentar cafetería Bruma a un posible socio. Quiero un PowerPoint editable, visual y preparado para una exposición de unos 12 minutos. Si falta información importante, pregúntame antes de continuar y no inventes datos. Guárdalo en esta misma carpeta".</pre>
+      <button class="copyBtn" data-copy-target="pProd1">COPIAR</button>
+    </div>
+
+    <div class="card accent">
+      <h4>¿Qué son las <em>Skills</em> o Habilidades?</h4>
+      <p>Las plataformas avanzadas como Claude Cowork utilizan <strong>Skills</strong> (habilidades). Una <em>Skill</em> es una instrucción técnica especializada que le enseña al agente a <strong>generar archivos reales con formato profesional</strong> (PowerPoint, PDF, Excel) en lugar de mostrar texto plano en el chat.</p>
+    </div>
+
+    <div class="card bad">
+      <h4>Error común y cómo evitarlo</h4>
+      <p><strong>Error:</strong> pedir «créame una presentación sobre mi proyecto» sin adjuntar materiales ni definir la audiencia.</p>
+      <p><strong>Cómo evitarlo:</strong> adjunta siempre la carpeta de fuentes y exige explícitamente: <em>«si falta información, pregúntame y no inventes datos»</em>.</p>
+    </div>
+
+    <div class="card ok">
+      <h4>Resumen del Capítulo 2</h4>
+      <p>El Productor convierte el caos de información en documentos pulidos. Tú actúas como el director de cine: la IA genera el borrador completo, pero tú aplicas los cortes y ajustes finales.</p>
+    </div>
+
+    <!-- ============ CAPÍTULO 3 ============ -->
+    <h2>Capítulo 3 · El Agente Auditor (verificación de datos y riesgos)</h2>
+    <div class="card accent">
+      <h4>Objetivo del Auditor</h4>
+      <p>El Auditor <strong>no crea contenido nuevo</strong>; su función es cuestionar la información, separar los datos comprobados de las simples suposiciones y advertir sobre riesgos o cláusulas peligrosas.</p>
+      <p>Se aplica principalmente en dos escenarios:</p>
+      <ol>
+        <li><strong>Investigación de mercado:</strong> cuando la información está dispersa en internet.</li>
+        <li><strong>Auditoría de contratos:</strong> cuando la información está concentrada en un documento legal o técnico complejo.</li>
+      </ol>
+    </div>
+
+    <h3>Escenario 1 · Investigación de mercado</h3>
+
+    <div class="step">
+      <h4><span class="num">1</span> Delimitar el alcance geográfico y temático</h4>
+      <p><strong>Acción:</strong> indica un radio exacto (ej. 800 metros) y los competidores a analizar.</p>
+      <p><strong>Motivo:</strong> evita que la IA traiga estadísticas generales que no aplican a tu entorno local.</p>
+      <p class="res"><strong>Resultado esperado:</strong> un análisis ceñido a tu zona real.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si aparecen datos de otras ciudades, reduce el radio y repite.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">2</span> Exigir la separación entre hechos, patrones e inferencias</h4>
+      <p><strong>Acción:</strong> utiliza las palabras clave del prompt estructurado.</p>
+      <p><strong>Motivo:</strong> permite distinguir qué está verificado (precios, horarios) de lo que es una suposición (tráfico peatonal).</p>
+      <p class="res"><strong>Resultado esperado:</strong> un informe con cuatro bloques: hechos, patrones, inferencias y datos sin verificar.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si todo aparece mezclado, insiste en la separación por bloques y en citar fuentes.</p>
+    </div>
+
+    <h4>🔍 Prompt de investigación de entorno local</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pAud1">"Investiga el entorno de cafetería Bruma en un radio de 800 m. Analiza cafeterías, precios, reseñas, horarios y tipo de público. Separa hechos, patrones, inferencias y datos sin verificar. Cita las fuentes y sé breve".</pre>
+      <button class="copyBtn" data-copy-target="pAud1">COPIAR</button>
+    </div>
+
+    <h4>📊 Prompt de análisis de viabilidad e informe</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pAud2">"Analiza si una cafetería de especialidad con un ticket medio de 9,80 € sería viable en esta ubicación. Compara los competidores más relevantes, profundiza en la franja de 2 a 5 de la tarde y crea un informe con oportunidades, riesgos y datos que todavía deberíamos validar. Verifica la información y guárdalo en esta carpeta".</pre>
+      <button class="copyBtn" data-copy-target="pAud2">COPIAR</button>
+    </div>
+
+    <h3>Escenario 2 · Auditoría de contratos</h3>
+
+    <div class="step">
+      <h4><span class="num">1</span> Cargar el documento original en PDF o texto</h4>
+      <p><strong>Acción:</strong> sube el contrato de alquiler, póliza de seguro o acuerdo de suministros.</p>
+      <p><strong>Motivo:</strong> permite al agente analizar el texto completo cláusula por cláusula.</p>
+      <p class="res"><strong>Resultado esperado:</strong> el documento legible y disponible para el agente.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si el PDF es una imagen escaneada sin texto, el agente no podrá leerlo con precisión.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">2</span> Pedir una matriz de auditoría en lugar de un resumen</h4>
+      <p><strong>Acción:</strong> solicita una tabla con explicación sencilla, efecto práctico, nivel de riesgo y preguntas pendientes.</p>
+      <p><strong>Motivo:</strong> un simple resumen suele ignorar las penalizaciones o la letra pequeña.</p>
+      <p class="res"><strong>Resultado esperado:</strong> una tabla de riesgos accionable, lista para negociar.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si te devuelve un texto corrido, repite pidiendo explícitamente «tabla con columnas».</p>
+    </div>
+
+    <h4>Prompt de auditoría de contratos</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pAud3">"Audita este contrato de alquiler. Revisa renta, carencias, obras, licencias, reparaciones, permanencia, penalizaciones y salida. Crea una tabla con la cláusula, explicación sencilla, efecto práctico, riesgo y pregunta pendiente. Marca cualquier ambigüedad".</pre>
+      <button class="copyBtn" data-copy-target="pAud3">COPIAR</button>
+    </div>
+
+    <h3>Ejemplo real de hallazgos del Auditor en un contrato</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Cláusula revisada</th><th>Explicación sencilla</th><th>Efecto práctico</th><th>Riesgo</th><th>Pregunta pendiente</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Licencia de apertura</strong></td>
+            <td>Obliga a pagar el alquiler aunque el Ayuntamiento deniegue la licencia.</td>
+            <td>Pagas mensualidad sin poder abrir al público.</td>
+            <td>🔴 <strong>ALTO</strong></td>
+            <td>¿Podemos condicionar el inicio del pago a la obtención de la licencia?</td>
+          </tr>
+          <tr>
+            <td><strong>Penalización por salida</strong></td>
+            <td>Exige el pago de todas las rentas pendientes hasta el fin del contrato.</td>
+            <td>Si el negocio falla al año 2, la multa supera los 90.000 €.</td>
+            <td>🔴 <strong>ALTO</strong></td>
+            <td>¿Es posible fijar un límite de indemnización de 3 meses?</td>
+          </tr>
+          <tr>
+            <td><strong>Mantenimiento del local</strong></td>
+            <td>Responsabiliza al inquilino de las reparaciones del tejado y fachada.</td>
+            <td>Deberás asumir obras estructurales del edificio.</td>
+            <td>🟡 <strong>MEDIO</strong></td>
+            <td>¿Las reparaciones estructurales pueden quedar a cargo de la propiedad?</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card warn">
+      <p><strong>Observación importante:</strong> la IA <strong>no sustituye</strong> la revisión final de un abogado profesional. Su objetivo es prepararte para que vayas a la reunión sabiendo exactamente qué puntos negociar o consultar.</p>
+    </div>
+
+    <div class="card ok">
+      <h4>Resumen del Capítulo 3</h4>
+      <p>El Auditor descompone documentos difíciles y analiza el mercado. Te protege frente a sorpresas financieras y cláusulas abusivas.</p>
+    </div>
+
+    <!-- ============ CAPÍTULO 4 ============ -->
+    <h2>Capítulo 4 · El Agente Preparador (ensayos y negociaciones)</h2>
+    <div class="card accent">
+      <h4>Objetivo del Preparador</h4>
+      <p>Pone a prueba tus argumentos antes de una reunión importante. Simula ser tu interlocutor (un propietario firme, un inversor exigente, un cliente difícil) para que <strong>ensayes tus respuestas en un entorno seguro</strong>.</p>
+    </div>
+
+    <h3>Paso a paso</h3>
+
+    <div class="step">
+      <h4><span class="num">1</span> Proporcionar todo el contexto previo</h4>
+      <p><strong>Acción:</strong> sube el contrato, la auditoría realizada y un documento breve con tu postura (qué quieres conseguir, tus límites y en qué puedes ceder).</p>
+      <p><strong>Motivo:</strong> si la IA no conoce tu estrategia, la simulación no será realista.</p>
+      <p class="res"><strong>Resultado esperado:</strong> un interlocutor virtual informado de tu posición.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si la simulación es blanda, es que falta contexto sobre tus límites.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">2</span> Asignar el rol y las reglas de conducta</h4>
+      <p><strong>Acción:</strong> indícale que sea firme, que haga una objeción a la vez y que <strong>no dé consejos</strong> durante la conversación.</p>
+      <p><strong>Motivo:</strong> evita que rompa el personaje a mitad de la negociación.</p>
+      <p class="res"><strong>Resultado esperado:</strong> una negociación realista y exigente.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si empieza a aconsejarte, recuérdale la regla: «no me aconsejes hasta que terminemos».</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">3</span> Activar el modo de voz y ensayar en tiempo real</h4>
+      <p><strong>Acción:</strong> utiliza la app móvil o el ordenador para hablar por micrófono.</p>
+      <p><strong>Motivo:</strong> en la vida real negocias hablando, no escribiendo mensajes analizados con calma.</p>
+      <p class="res"><strong>Resultado esperado:</strong> soltura y agilidad conversacional.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si te bloqueas, repite el ensayo con menos presión y sube la dificultad después.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">4</span> Pedir la retroalimentación técnica al finalizar</h4>
+      <p><strong>Acción:</strong> rompe el personaje y pide que analice dónde dudaste y cómo mejorar tus argumentos más débiles.</p>
+      <p><strong>Motivo:</strong> convierte el ensayo en aprendizaje concreto.</p>
+      <p class="res"><strong>Resultado esperado:</strong> una lista de puntos fuertes y débiles.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si la crítica es demasiado genérica, pide ejemplos concretos de tus frases.</p>
+    </div>
+
+    <div class="step">
+      <h4><span class="num">5</span> Generar la Tarjeta de Preparación en 1 página</h4>
+      <p><strong>Acción:</strong> solicita un resumen ejecutivo con tus límites y respuestas clave.</p>
+      <p><strong>Motivo:</strong> tendrás delante lo esencial justo antes de entrar a la reunión.</p>
+      <p class="res"><strong>Resultado esperado:</strong> una página con objetivo ideal, mínimo aceptable y respuestas preparadas.</p>
+      <p class="fail"><strong>Si algo sale mal:</strong> si ocupa más de una página, pide que recorte a lo esencial.</p>
+    </div>
+
+    <h3>Prompts del Agente Preparador</h3>
+
+    <h4>🎭 Prompt 1 · Asignación de rol (simulación)</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pPrep1">"Actúa como el propietario del local de cafetería Bruma. Has leído el contrato, su auditoría y mi posición negociadora. Eres firme, tienes otros interesados y no quieres cambiar fácilmente tus condiciones. Negocia conmigo, plantea una objeción cada vez y cuestiona cualquier respuesta débil. No me aconsejes hasta que terminemos y registra toda la simulación para analizarla después".</pre>
+      <button class="copyBtn" data-copy-target="pPrep1">COPIAR</button>
+    </div>
+
+    <h4>📊 Prompt 2 · Retroalimentación tras el ensayo</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pPrep2">"Terminamos la negociación. Ahora actúa como mi preparador. Dime dónde he sido convincente, dónde he dudado o cedido demasiado pronto, qué objeciones no he resuelto y cómo mejoraría mis tres respuestas más débiles".</pre>
+      <button class="copyBtn" data-copy-target="pPrep2">COPIAR</button>
+    </div>
+
+    <h4>📄 Prompt 3 · Tarjeta de preparación de 1 página</h4>
+    <div class="prompt promptBox">
+      <pre class="promptBody" id="pPrep3">"Convierte lo aprendido en una tarjeta de preparación de una página. Incluye el objetivo ideal, el mínimo aceptable, nuestros límites, los argumentos principales, las posibles objeciones, las mejores respuestas y las concesiones disponibles".</pre>
+      <button class="copyBtn" data-copy-target="pPrep3">COPIAR</button>
+    </div>
+
+    <div class="card ok">
+      <h4>Resumen del Capítulo 4</h4>
+      <p>El Preparador transforma el conocimiento teórico en agilidad conversacional. Llegarás a tus reuniones sabiendo qué responder ante las objeciones más probables.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       PRÁCTICA
+       ========================================================== -->
+  <section class="panel" id="practica">
+    <h1>Práctica guiada</h1>
+    <p class="lead">Aquí es donde el tutorial deja de ser lectura y se convierte en trabajo real. Empieza por el constructor de prompts.</p>
+
+    <h2>🛠️ Constructor de prompt en 5 partes</h2>
+    <p>Rellena las cinco casillas y el constructor te devolverá un prompt profesional listo para pegar en tu plataforma de IA.</p>
+
+    <div class="card builder">
+      <label for="bTrabajo">1 · Trabajo — ¿qué tarea debe realizar?</label>
+      <input id="bTrabajo" placeholder="Ej.: Revisa los correos de los últimos 7 días sobre Cafetería Bruma">
+
+      <label for="bHerramienta">2 · Herramienta — ¿qué debe consultar?</label>
+      <input id="bHerramienta" placeholder="Ej.: Gmail y Google Calendar">
+
+      <label for="bCriterios">3 · Criterios — ¿cómo debe clasificar?</label>
+      <input id="bCriterios" placeholder="Ej.: Urgente hoy, decisión pendiente, esperando respuesta, sin acción">
+
+      <label for="bResultado">4 · Resultado — ¿qué formato debe entregar?</label>
+      <input id="bResultado" placeholder="Ej.: Lista con responsable, fecha límite y siguiente paso">
+
+      <label for="bLimite">5 · Límite — ¿qué tiene prohibido?</label>
+      <input id="bLimite" placeholder="Ej.: No envíes ni modifiques nada sin mi confirmación">
+
+      <button class="btn-main" id="bGen">⚡ Generar prompt</button>
+
+      <div class="prompt promptBox" style="margin-top:1rem">
+        <pre class="promptBody" id="bOut">Completa las cinco casillas y pulsa «Generar prompt».</pre>
+        <button class="copyBtn" data-copy-target="bOut">COPIAR</button>
+      </div>
+    </div>
+
+    <h2>🧪 Ejercicios con solución explicada</h2>
+
+    <details class="acc">
+      <summary>Ejercicio 1 · Diseñar un prompt para el Operador (Slack)</summary>
+      <div class="body">
+        <p><strong>Consigna:</strong> quieres que un agente revise tus mensajes de Slack del proyecto y detecte tareas pendientes.</p>
+        <p><strong>Solución explicada:</strong> debes aplicar las 5 partes.</p>
+        <ul>
+          <li><strong>Trabajo:</strong> revisa los mensajes de los últimos 3 días en el canal #proyecto.</li>
+          <li><strong>Herramienta:</strong> Slack.</li>
+          <li><strong>Criterios:</strong> clasifica en tareas urgentes, dudas de clientes y avisos informativos.</li>
+          <li><strong>Resultado:</strong> lista resumida con responsable y fecha.</li>
+          <li><strong>Límite:</strong> no respondas ningún mensaje por ti mismo.</li>
+        </ul>
+        <div class="prompt promptBox">
+          <pre class="promptBody" id="pEjer1">"Revisa los mensajes de los últimos 3 días en el canal #proyecto de Slack. Clasifícalos en tareas urgentes, dudas de clientes y avisos informativos. Devuélveme una lista resumida indicando el responsable y la fecha límite de cada tarea. No respondas ningún mensaje por mí ni modifiques nada sin mi confirmación".</pre>
+          <button class="copyBtn" data-copy-target="pEjer1">COPIAR</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="acc">
+      <summary>Ejercicio 2 · Identificar los fallos de una instrucción</summary>
+      <div class="body">
+        <p><strong>Consigna:</strong> evalúa este prompt: <em>«Lee este contrato y dime si es bueno»</em>.</p>
+        <p><strong>Solución explicada:</strong> es un prompt incorrecto porque es <strong>ambiguo</strong>.</p>
+        <ul>
+          <li>No especifica qué cláusulas revisar (renta, penalizaciones, permanencia…).</li>
+          <li>No exige una tabla de riesgos.</li>
+          <li>No establece qué formato debe tener la respuesta.</li>
+          <li>No fija ningún límite de actuación.</li>
+        </ul>
+        <p>Debe sustituirse por el <strong>prompt estructurado del Agente Auditor</strong>, que sí pide tabla, explicación sencilla, efecto práctico, riesgo y pregunta pendiente.</p>
+      </div>
+    </details>
+
+    <details class="acc">
+      <summary>Ejercicio 3 · Detectar el error de seguridad</summary>
+      <div class="body">
+        <p><strong>Consigna:</strong> tu prompt dice «revisa mis correos y responde a los urgentes». ¿Qué falta?</p>
+        <p><strong>Solución explicada:</strong> falta el <strong>Límite</strong>. Tal como está, el agente podría enviar correos en tu nombre. La versión correcta termina con: <em>«Si hace falta responder, prepara un borrador breve. No envíes ni modifiques nada sin mi confirmación»</em>.</p>
+      </div>
+    </details>
+
+    <details class="acc">
+      <summary>Ejercicio 4 · Elegir el agente correcto</summary>
+      <div class="body">
+        <p><strong>Consigna:</strong> necesitas saber si el alquiler que vas a firmar te obliga a pagar aunque no consigas licencia. ¿Qué agente usas?</p>
+        <p><strong>Solución explicada:</strong> el <strong>Auditor</strong>, en su escenario de auditoría de contratos. No es tarea del Productor (crear) ni del Operador (organizar) ni del Preparador (ensayar). Y el resultado debe ser una tabla de riesgos, no un simple resumen.</p>
+      </div>
+    </details>
+
+    <h2>💼 Casos de uso por agente</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Agente</th><th>Caso de uso típico</th><th>Entregable que produce</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Operador</strong></td><td>Lunes por la mañana, bandeja con 80 correos sin leer.</td><td>Informe de prioridades + borradores de respuesta.</td></tr>
+          <tr><td><strong>Productor</strong></td><td>Presentar el proyecto a un posible socio en 48 horas.</td><td>PowerPoint de 10 diapositivas editable.</td></tr>
+          <tr><td><strong>Auditor</strong></td><td>Antes de firmar el contrato de alquiler del local.</td><td>Tabla de riesgos con preguntas pendientes.</td></tr>
+          <tr><td><strong>Preparador</strong></td><td>Víspera de la negociación con el propietario.</td><td>Tarjeta de preparación de 1 página.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>🚀 Checklist de implantación</h2>
+    <div class="card">
+      <ul class="check-list">
+        <li>Elige un proyecto real y escribe en una frase su objetivo.</li>
+        <li>Crea una carpeta única con todo el material de contexto.</li>
+        <li>Empieza por el <strong>Operador</strong> en Nivel 1 (solo informa).</li>
+        <li>Cuando funcione, súbelo a Nivel 2 (borradores supervisados).</li>
+        <li>Añade el <strong>Productor</strong> para tu primer entregable real.</li>
+        <li>Usa el <strong>Auditor</strong> en tu próximo documento importante.</li>
+        <li>Ensaya con el <strong>Preparador</strong> antes de tu próxima reunión difícil.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       ERRORES
+       ========================================================== -->
+  <section class="panel" id="errores">
+    <h1>Errores frecuentes y cómo evitarlos</h1>
+    <p class="lead">Casi todos los problemas con agentes de IA vienen de cuatro causas: prompts vagos, falta de contexto, ausencia de límites y exceso de confianza inicial.</p>
+
+    <h2>❌ Los 4 errores que NUNCA deben cometerse</h2>
+    <div class="card bad">
+      <ol class="cross-list" style="margin-left:0">
+        <li>Pedir <strong>resúmenes simples de contratos</strong> en lugar de auditorías detalladas.</li>
+        <li>Permitir que el agente <strong>envíe correos o modifique eventos</strong> sin tu autorización previa.</li>
+        <li>Dar <strong>órdenes vagas</strong> sin adjuntar archivos de contexto.</li>
+        <li>Ensayar negociaciones pidiendo que la IA <strong>te dé consejos mientras simula</strong> el papel.</li>
+      </ol>
+    </div>
+
+    <h2>Errores por agente</h2>
+
+    <div class="grid two">
+      <div class="card bad">
+        <h4>Operador</h4>
+        <p><strong>Error:</strong> darle permisos automáticos de envío de correos desde el primer día.</p>
+        <p><strong>Solución:</strong> mantén la regla «no enviar ni modificar nada sin confirmación» hasta comprobar que entiende tus prioridades.</p>
+      </div>
+      <div class="card bad">
+        <h4>Productor</h4>
+        <p><strong>Error:</strong> pedir «créame una presentación sobre mi proyecto» sin adjuntar materiales ni definir la audiencia.</p>
+        <p><strong>Solución:</strong> adjunta siempre la carpeta de fuentes y exige: «si falta información, pregúntame y no inventes datos».</p>
+      </div>
+      <div class="card bad">
+        <h4>Auditor</h4>
+        <p><strong>Error:</strong> conformarse con un resumen en texto corrido.</p>
+        <p><strong>Solución:</strong> pide siempre la <strong>matriz de auditoría</strong> con columnas de riesgo y pregunta pendiente.</p>
+      </div>
+      <div class="card bad">
+        <h4>Preparador</h4>
+        <p><strong>Error:</strong> dejar que rompa el personaje y te aconseje a mitad de la negociación.</p>
+        <p><strong>Solución:</strong> indica en el prompt «no me aconsejes hasta que terminemos».</p>
+      </div>
+    </div>
+
+    <h2>🧯 Cómo evitar que la IA invente datos</h2>
+    <div class="card warn">
+      <p>Para evitar invenciones (<strong>alucinaciones</strong>), incluye siempre en el prompt restricciones explícitas como:</p>
+      <div class="prompt promptBox">
+        <pre class="promptBody" id="pAnti">"Básate únicamente en los documentos adjuntos, no inventes datos y si falta información pregúntame".</pre>
+        <button class="copyBtn" data-copy-target="pAnti">COPIAR</button>
+      </div>
+    </div>
+
+    <h2>🔁 Antes y después: el mismo encargo, dos resultados</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Aspecto</th><th>Prompt simple</th><th>Prompt estructurado (5 partes)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Resultado</strong></td><td>Texto largo mezclando lo importante con lo irrelevante.</td><td>Lista organizada por urgencia y plazos.</td></tr>
+          <tr><td><strong>Accionabilidad</strong></td><td>Te obliga a releer todo para decidir.</td><td>Prepara borradores y propone cambios de agenda.</td></tr>
+          <tr><td><strong>Seguridad</strong></td><td>Riesgo de malinterpretar la orden.</td><td>Límite claro: prohibido enviar o borrar sin permiso.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card ok">
+      <p><strong>Regla final:</strong> cuanto más concretas sean tus cinco partes, menos margen tendrá la IA para improvisar. Un agente bien definido no es el que sabe más, sino el que sabe exactamente <em>qué no debe hacer</em>.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       RESUMEN
+       ========================================================== -->
+  <section class="panel" id="resumen">
+    <h1>Resumen del tutorial</h1>
+
+    <h2>1. Lo esencial, capítulo a capítulo</h2>
+    <div class="grid two">
+      <div class="card accent"><h4>Introducción</h4><p>Un agente es un asistente ejecutivo digital, no un transeúnte al que preguntas algo. Recibe la tarea completa y la termina.</p></div>
+      <div class="card accent"><h4>Capítulo 1 · Operador</h4><p>Ordena correo y calendario, clasifica prioridades y prepara borradores. Nunca envía nada sin tu permiso.</p></div>
+      <div class="card accent"><h4>Capítulo 2 · Productor</h4><p>Convierte carpetas desordenadas en presentaciones, informes y tablas profesionales.</p></div>
+      <div class="card accent"><h4>Capítulo 3 · Auditor</h4><p>Separa hechos de suposiciones y convierte contratos en tablas de riesgo accionables.</p></div>
+      <div class="card accent"><h4>Capítulo 4 · Preparador</h4><p>Simula al interlocutor difícil y te entrega una tarjeta de preparación de una página.</p></div>
+      <div class="card accent"><h4>Escalera de Autonomía</h4><p>Nivel 1 informar, Nivel 2 supervisar, Nivel 3 automatizar. Se sube un escalón cada vez.</p></div>
+    </div>
+
+    <h2>2. Conceptos clave</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Concepto</th><th>Definición</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Agente de IA</strong></td><td>Sistema que ejecuta un trabajo complejo multipaso mediante herramientas.</td></tr>
+          <tr><td><strong>Prompt en 5 partes</strong></td><td>Estructura para definir trabajo, herramientas, criterios, resultado y límites.</td></tr>
+          <tr><td><strong>Ciclo Razonar y Actuar</strong></td><td>Proceso interno donde la IA analiza, usa una herramienta, evalúa el resultado y decide el siguiente paso.</td></tr>
+          <tr><td><strong>Skill (Habilidad)</strong></td><td>Instrucción técnica que permite a la IA generar archivos reales (PPTX, PDF, XLSX).</td></tr>
+          <tr><td><strong>Escalera de Autonomía</strong></td><td>Proceso gradual de delegación de tareas a la IA.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>3. Glosario de términos técnicos</h2>
+    <div class="card">
+      <ul>
+        <li><strong>Alucinación:</strong> cuando un modelo de IA genera información falsa o inventada por falta de contexto.</li>
+        <li><strong>Conector / Integración:</strong> enlace digital que permite a la IA acceder a aplicaciones externas como Gmail, Google Calendar o Slack.</li>
+        <li><strong>Entregable:</strong> archivo final terminado (presentación, informe, tabla) listo para ser utilizado.</li>
+        <li><strong>Inferencias:</strong> conclusiones o deducciones lógicas basadas en patrones, pero que aún requieren verificación presencial o formal.</li>
+        <li><strong>Tarjeta de Preparación:</strong> documento sintético de 1 página que resume objetivos, límites y respuestas clave para una reunión.</li>
+      </ul>
+    </div>
+
+    <h2>4. Preguntas frecuentes</h2>
+
+    <details class="acc">
+      <summary>¿Necesito saber programar para usar estos 4 agentes?</summary>
+      <div class="body"><p><strong>No.</strong> Los agentes se construyen redactando instrucciones claras en lenguaje natural (castellano simple) dentro de aplicaciones como Claude, ChatGPT o Gemini.</p></div>
+    </details>
+
+    <details class="acc">
+      <summary>¿Un agente Auditor sustituye a un abogado o gestor?</summary>
+      <div class="body"><p><strong>No.</strong> El Auditor sirve para detectar puntos críticos y letra pequeña de forma rápida, permitiéndote llegar a la consulta del profesional con las preguntas exactas.</p></div>
+    </details>
+
+    <details class="acc">
+      <summary>¿Qué ocurre si la IA se inventa datos?</summary>
+      <div class="body"><p>Para evitar invenciones (alucinaciones), debes incluir siempre en el prompt restricciones explícitas como: <em>«básate únicamente en los documentos adjuntos, no inventes datos y si falta información pregúntame»</em>.</p></div>
+    </details>
+
+    <details class="acc">
+      <summary>¿Cuánto tardo en montar mi primer agente?</summary>
+      <div class="body"><p>Con los prompts de este tutorial, el primer Operador puede estar funcionando en la misma sesión de trabajo. Lo que lleva más tiempo es ajustar los criterios de clasificación a tu manera de priorizar.</p></div>
+    </details>
+
+    <details class="acc">
+      <summary>¿Puedo empezar por cualquiera de los cuatro agentes?</summary>
+      <div class="body"><p>Sí, pero el orden recomendado es <strong>Operador → Productor → Auditor → Preparador</strong>, porque cada uno aprovecha el resultado del anterior (por ejemplo, el Preparador usa la auditoría que hizo el Auditor).</p></div>
+    </details>
+
+    <div class="card ok">
+      <p><strong>Cierre:</strong> hemos aprendido a estructurar un sistema de trabajo compuesto por 4 roles digitales: el <strong>Operador</strong> (organiza la agenda), el <strong>Productor</strong> (crea entregables), el <strong>Auditor</strong> (detecta riesgos en documentos y mercados) y el <strong>Preparador</strong> (ensaya negociaciones). Todo agente se define mediante 5 partes clave: <strong>Trabajo, Herramienta, Criterios, Resultado y Límite</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       FUENTES
+       ========================================================== -->
+  <section class="panel" id="fuentes">
+    <h1>Fuentes y enlaces</h1>
+    <p class="lead">Los conceptos, materiales y prompts de este tutorial están basados en los siguientes recursos oficiales.</p>
+
+    <div class="card accent">
+      <h3 style="margin-top:0">🎬 Video de YouTube</h3>
+      <ul>
+        <li><strong>Título:</strong> «4 agentes de IA para automatizar el 99% de tu trabajo»</li>
+        <li><strong>Canal:</strong> Migue Baena IA</li>
+        <li><strong>Enlace:</strong> <a href="https://youtube.com/watch?v=zXxktjZ7s34&amp;is=RjL8bmnTGLXQK0tx" target="_blank" rel="noopener">Ver video en YouTube</a></li>
+      </ul>
+    </div>
+
+    <div class="card accent">
+      <h3 style="margin-top:0">📁 Plantillas y materiales en Notion</h3>
+      <ul>
+        <li><strong>Título:</strong> «4 agentes de IA para organizar, crear, auditar y prepararte | Notion»</li>
+        <li><strong>Enlace:</strong> <a href="https://app.notion.com/p/4-agentes-de-IA-para-organizar-crear-auditar-y-prepararte-3b35accb1cc9803da4a2d1f7f65288da?source=copy_link" target="_blank" rel="noopener">Acceder al espacio de Notion</a></li>
+      </ul>
+    </div>
+
+    <div class="card warn">
+      <p><strong>Nota:</strong> este tutorial es un material de aprendizaje derivado de esas fuentes. No añade funciones, datos ni procedimientos que no estén respaldados por el material original.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       PROMPTS
+       ========================================================== -->
+  <section class="panel" id="prompts">
+    <h1>Biblioteca de prompts</h1>
+    <p class="lead">
+      Todos los prompts del tutorial, listos para copiar y adaptar a tu proyecto.
+      Cada uno incluye su descripción, el momento de uso y un botón <strong>COPIAR</strong> que funciona
+      también abriendo este archivo como <code>file://</code>, dentro de un <code>&lt;iframe&gt;</code>
+      o con los permisos de portapapeles denegados.
+    </p>
+
+    <div class="card accent prompt-index">
+      <h3 style="margin-top:0">📑 Índice de prompts</h3>
+      <p class="muted">Pulsa cualquier título para saltar directamente al prompt.</p>
+      <ol>
+        <li><a href="#pr-oper-1">Revisar correos diarios (versión básica)</a> <span class="tag idx-tag">Operador</span></li>
+        <li><a href="#pr-oper-2">Clasificar los correos de los últimos 7 días</a> <span class="tag idx-tag">Operador</span></li>
+        <li><a href="#pr-oper-3">Cruzar prioridades con el calendario</a> <span class="tag idx-tag">Operador</span></li>
+        <li><a href="#pr-prod-1">Crear una presentación para un socio</a> <span class="tag idx-tag">Productor</span></li>
+        <li><a href="#pr-aud-1">Investigar el entorno local de la cafetería</a> <span class="tag idx-tag">Auditor</span></li>
+        <li><a href="#pr-aud-2">Analizar la viabilidad del negocio y generar informe</a> <span class="tag idx-tag">Auditor</span></li>
+        <li><a href="#pr-aud-3">Auditar un contrato de alquiler</a> <span class="tag idx-tag">Auditor</span></li>
+        <li><a href="#pr-prep-1">Simular la negociación con el propietario</a> <span class="tag idx-tag">Preparador</span></li>
+        <li><a href="#pr-prep-2">Recibir retroalimentación tras el ensayo</a> <span class="tag idx-tag">Preparador</span></li>
+        <li><a href="#pr-prep-3">Generar la tarjeta de preparación de 1 página</a> <span class="tag idx-tag">Preparador</span></li>
+      </ol>
+    </div>
+
+    <h2>1 · Agente Operador</h2>
+
+    <article class="promptBox" id="pr-oper-1">
+      <div class="pb-head">
+        <span class="tag">Operador</span>
+        <h3>Revisar correos diarios (versión básica)</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Pide a la IA un resumen simple de todos los correos recibidos el día anterior relacionados con la cafetería.</p>
+      <p class="pb-use"><strong>Uso:</strong> Como punto de partida o para comprobar en primera persona la diferencia entre una orden vaga y un prompt estructurado. Sirve cuando sólo necesitas una vista general rápida, no una clasificación accionable.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-oper-1">"Resuma todos los correos recibidos durante el día de ayer relacionados con la cafetería".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <article class="promptBox" id="pr-oper-2">
+      <div class="pb-head">
+        <span class="tag">Operador</span>
+        <h3>Clasificar los correos de los últimos 7 días</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Prompt estructurado en las 5 partes (Trabajo, Herramienta, Criterios, Resultado y Límite) que revisa la bandeja de Gmail, clasifica los correos por urgencia real y prepara borradores de respuesta.</p>
+      <p class="pb-use"><strong>Uso:</strong> Cada mañana o al inicio de la semana, cuando la bandeja de entrada está desbordada y necesitas saber qué responder hoy, qué decisiones están pendientes y qué está esperando respuesta.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-oper-2">"Revisa los correos de los últimos 7 días sobre cafetería Bruma. Utiliza Gmail. Clasifícalos en responder hoy, decisión pendiente, esperando respuesta y sin acción. Prioriza lo que afecte a la licencia, la reforma, el presupuesto o la apertura. Indica el responsable, la fecha límite y el siguiente paso. Si hace falta responder, prepara un borrador breve. No envíes ni modifiques nada sin mi confirmación".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <article class="promptBox" id="pr-oper-3">
+      <div class="pb-head">
+        <span class="tag">Operador</span>
+        <h3>Cruzar prioridades con el calendario</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Segunda instrucción del Operador que combina las prioridades detectadas en el correo con la agenda de los próximos 3 días para localizar conflictos, reuniones sin preparación y decisiones sin tiempo reservado.</p>
+      <p class="pb-use"><strong>Uso:</strong> Justo después del prompt anterior, para planificar la semana y proteger huecos de concentración antes de las reuniones clave. Sólo propone cambios, no los aplica.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-oper-3">"Cruza las prioridades que acabamos de encontrar en Gmail con mi calendario de los próximos 3 días. Quiero que detectes posibles conflictos, compruebes qué reuniones necesitan preparación y me digas para qué decisiones importantes no he reservado tiempo. De momento solo puedes proponer cambios, no puedes modificar nada sin preguntarlo".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <h2>2 · Agente Productor</h2>
+
+    <article class="promptBox" id="pr-prod-1">
+      <div class="pb-head">
+        <span class="tag">Productor</span>
+        <h3>Crear una presentación para un socio</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Convierte las notas de una carpeta en un PowerPoint editable de 10 diapositivas, visual y calculado para una exposición de unos 12 minutos.</p>
+      <p class="pb-use"><strong>Uso:</strong> Cuando tienes el material disperso en notas, PDF e imágenes y necesitas un entregable presentable en poco tiempo. Requiere tener la carpeta de fuentes preparada y exige que la IA pregunte antes de inventar datos.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-prod-1">"Lee el documento de notas de esta carpeta y crea una presentación de 10 diapositivas para presentar cafetería Bruma a un posible socio. Quiero un PowerPoint editable, visual y preparado para una exposición de unos 12 minutos. Si falta información importante, pregúntame antes de continuar y no inventes datos. Guárdalo en esta misma carpeta".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <h2>3 · Agente Auditor</h2>
+
+    <article class="promptBox" id="pr-aud-1">
+      <div class="pb-head">
+        <span class="tag">Auditor</span>
+        <h3>Investigar el entorno local de la cafetería</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Analiza el entorno de la cafetería en un radio de 800 m (competidores, precios, reseñas, horarios y tipo de público), separando hechos, patrones, inferencias y datos sin verificar, con las fuentes citadas.</p>
+      <p class="pb-use"><strong>Uso:</strong> Antes de decidir la ubicación o el concepto del negocio, para no confundir datos reales con suposiciones. Delimita bien el radio geográfico para evitar estadísticas genéricas.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-aud-1">"Investiga el entorno de cafetería Bruma en un radio de 800 m. Analiza cafeterías, precios, reseñas, horarios y tipo de público. Separa hechos, patrones, inferencias y datos sin verificar. Cita las fuentes y sé breve".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <article class="promptBox" id="pr-aud-2">
+      <div class="pb-head">
+        <span class="tag">Auditor</span>
+        <h3>Analizar la viabilidad del negocio y generar informe</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Evalúa si una cafetería de especialidad con ticket medio de 9,80 € es viable en una ubicación concreta, comparando competidores relevantes y profundizando en la franja de 2 a 5 de la tarde.</p>
+      <p class="pb-use"><strong>Uso:</strong> Cuando ya tienes la investigación de entorno y quieres una conclusión accionable con oportunidades, riesgos y datos pendientes de validar. Guarda el informe directamente en la carpeta del proyecto.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-aud-2">"Analiza si una cafetería de especialidad con un ticket medio de 9,80 € sería viable en esta ubicación. Compara los competidores más relevantes, profundiza en la franja de 2 a 5 de la tarde y crea un informe con oportunidades, riesgos y datos que todavía deberíamos validar. Verifica la información y guárdalo en esta carpeta".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <article class="promptBox" id="pr-aud-3">
+      <div class="pb-head">
+        <span class="tag">Auditor</span>
+        <h3>Auditar un contrato de alquiler</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Revisa un contrato de alquiler cláusula por cláusula (renta, carencias, obras, licencias, reparaciones, permanencia, penalizaciones y salida) y devuelve una tabla de riesgos con preguntas pendientes y ambigüedades marcadas.</p>
+      <p class="pb-use"><strong>Uso:</strong> Antes de firmar cualquier contrato importante. El resultado es una matriz para negociar, no un resumen. Recuerda que no sustituye la revisión final de un abogado.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-aud-3">"Audita este contrato de alquiler. Revisa renta, carencias, obras, licencias, reparaciones, permanencia, penalizaciones y salida. Crea una tabla con la cláusula, explicación sencilla, efecto práctico, riesgo y pregunta pendiente. Marca cualquier ambigüedad".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <h2>4 · Agente Preparador</h2>
+
+    <article class="promptBox" id="pr-prep-1">
+      <div class="pb-head">
+        <span class="tag">Preparador</span>
+        <h3>Simular la negociación con el propietario</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Convierte a la IA en el propietario del local: firme, con otros interesados y poco dispuesto a ceder. Plantea una objeción por turno, cuestiona cualquier respuesta débil y no da consejos durante la simulación.</p>
+      <p class="pb-use"><strong>Uso:</strong> La víspera de una negociación importante. Requiere haber subido antes el contrato, la auditoría y un documento breve con tu posición negociadora y tus límites.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-prep-1">"Actúa como el propietario del local de cafetería Bruma. Has leído el contrato, su auditoría y mi posición negociadora. Eres firme, tienes otros interesados y no quieres cambiar fácilmente tus condiciones. Negocia conmigo, plantea una objeción cada vez y cuestiona cualquier respuesta débil. No me aconsejes hasta que terminemos y registra toda la simulación para analizarla después".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <article class="promptBox" id="pr-prep-2">
+      <div class="pb-head">
+        <span class="tag">Preparador</span>
+        <h3>Recibir retroalimentación tras el ensayo</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Al terminar la simulación, la IA sale del papel y analiza tu desempeño: dónde fuiste convincente, dónde dudaste o cediste demasiado pronto, qué objeciones quedaron sin resolver y cómo mejorar tus tres respuestas más débiles.</p>
+      <p class="pb-use"><strong>Uso:</strong> Inmediatamente después de cada ensayo, para convertir la práctica en aprendizaje concreto. Si la crítica es demasiado genérica, pide ejemplos concretos de tus frases.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-prep-2">"Terminamos la negociación. Ahora actúa como mi preparador. Dime dónde he sido convincente, dónde he dudado o cedido demasiado pronto, qué objeciones no he resuelto y cómo mejoraría mis tres respuestas más débiles".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <article class="promptBox" id="pr-prep-3">
+      <div class="pb-head">
+        <span class="tag">Preparador</span>
+        <h3>Generar la tarjeta de preparación de 1 página</h3>
+      </div>
+      <p class="pb-desc"><strong>Descripción:</strong> Sintetiza todo lo aprendido en una tarjeta de una sola página con el objetivo ideal, el mínimo aceptable, los límites, los argumentos principales, las posibles objeciones, las mejores respuestas y las concesiones disponibles.</p>
+      <p class="pb-use"><strong>Uso:</strong> Justo antes de entrar a la reunión, como resumen de bolsillo. Si ocupa más de una página, pide que recorte a lo esencial.</p>
+      <div class="prompt">
+        <pre class="promptBody" id="prTxt-prep-3">"Convierte lo aprendido en una tarjeta de preparación de una página. Incluye el objetivo ideal, el mínimo aceptable, nuestros límites, los argumentos principales, las posibles objeciones, las mejores respuestas y las concesiones disponibles".</pre>
+        <button class="copyBtn" type="button">COPIAR</button>
+      </div>
+    </article>
+
+    <div class="card ok">
+      <p><strong>Consejo de uso:</strong> adapta siempre los prompts a tu proyecto real. Cambia «cafetería Bruma» por el nombre de tu proyecto, ajusta plazos, herramientas y criterios. Cuanto más concretas sean las cinco partes, más útil será el resultado.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       EJERCICIOS
+       ========================================================== -->
+  <section class="panel" id="ejercicios">
+    <h1>Ejercicios</h1>
+    <p class="lead">
+      Pon a prueba lo aprendido con <strong>21 ejercicios</strong> organizados en tres niveles de dificultad.
+      Cada ejercicio incluye su <strong>solución paso a paso</strong>, la <strong>explicación causal</strong>
+      (por qué la respuesta es esa) y el <strong>error típico a evitar</strong> con una recomendación
+      para prevenirlo.
+    </p>
+
+    <div class="card accent">
+      <h3 style="margin-top:0">🎯 Cómo aprovechar esta sección</h3>
+      <ol>
+        <li>Lee el <strong>enunciado</strong> e intenta resolverlo sin abrir la solución.</li>
+        <li>Despliega el acordeón para comparar con la <strong>solución paso a paso</strong>.</li>
+        <li>Lee la <strong>explicación causal</strong> para entender el porqué, no solo el qué.</li>
+        <li>Repasa el <strong>error típico</strong> y su prevención: ahí están las claves para no fallar en la práctica.</li>
+        <li>Avanza en orden: los ejercicios aumentan progresivamente de dificultad.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">📊 Distribución de los ejercicios</h3>
+      <div class="grid three">
+        <div class="card" style="margin:0;text-align:center;border-left:4px solid var(--ok)">
+          <p style="margin:.2rem 0"><span class="tag easy">Fácil</span></p>
+          <p style="font-size:1.4rem;font-weight:900;margin:.2rem 0">7</p>
+          <p class="muted" style="margin:0">Ejercicios 1 a 7</p>
+        </div>
+        <div class="card" style="margin:0;text-align:center;border-left:4px solid var(--warn)">
+          <p style="margin:.2rem 0"><span class="tag medium">Medio</span></p>
+          <p style="font-size:1.4rem;font-weight:900;margin:.2rem 0">8</p>
+          <p class="muted" style="margin:0">Ejercicios 8 a 15</p>
+        </div>
+        <div class="card" style="margin:0;text-align:center;border-left:4px solid var(--bad)">
+          <p style="margin:.2rem 0"><span class="tag hard">Difícil</span></p>
+          <p style="font-size:1.4rem;font-weight:900;margin:.2rem 0">6</p>
+          <p class="muted" style="margin:0">Ejercicios 16 a 21</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         NIVEL FÁCIL
+         ============================================ -->
+    <h2>🟢 Nivel Fácil</h2>
+
+    <!-- Ejercicio 1 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Verdadero / Falso</span>
+          <span class="tag easy">Fácil</span>
+        </span>
+        <span class="ex-q">Ejercicio 1 · Chatbot tradicional vs. agente de IA ante una tarea compleja</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Un chatbot tradicional y un agente de IA se comportan igual cuando reciben una tarea compleja: ambos resuelven el objetivo completo y entregan un resultado terminado. Indica si la afirmación es verdadera o falsa y justifica brevemente.
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          El material distingue ambos conceptos. El chatbot responde a una consulta puntual y termina ahí. El agente recibe una tarea de principio a fin, usa herramientas y entrega un resultado profesional. Por tanto, la afirmación es <strong>falsa</strong>.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque el agente incorpora un ciclo de trabajo con herramientas y entregable, mientras el chatbot carece de continuidad y no produce un resultado final elaborado.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Confundir «respuesta útil» con «trabajo terminado». Prevenir recordando que el criterio diferenciador es si hay objetivo completo + herramientas + entregable.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 2 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Opción múltiple</span>
+          <span class="tag easy">Fácil</span>
+        </span>
+        <span class="ex-q">Ejercicio 2 · ¿Qué rol convierte notas dispersas en presentaciones pulidas?</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          ¿Cuál de los cuatro roles tiene como misión principal convertir notas dispersas, imágenes y presupuestos en presentaciones o informes pulidos?
+          <ul>
+            <li>A) Operador</li>
+            <li>B) Auditor</li>
+            <li>C) Preparador</li>
+            <li>D) Productor</li>
+          </ul>
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          El Operador organiza prioridades; el Auditor verifica riesgos; el Preparador entrena conversaciones; el Productor crea entregables a partir de material desordenado. La opción correcta es <strong>D) Productor</strong>.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque el rol de creación de documentos finales corresponde al Productor, que transforma el caos de información en archivos listos para presentar.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Asignar la creación de documentos al Auditor, confundiendo «analizar» con «producir». Prevenir recordando que el Auditor no crea contenido nuevo.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 3 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Completar</span>
+          <span class="tag easy">Fácil</span>
+        </span>
+        <span class="ex-q">Ejercicio 3 · Las cinco partes del prompt profesional</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Completa la frase: «Un prompt profesional debe incluir cinco partes: Trabajo, Herramienta, Criterios, ______ y ______.»
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          Las cinco partes son Trabajo, Herramienta, Criterios, <strong>Resultado</strong> y <strong>Límite</strong>. Faltan las dos últimas.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque sin el Resultado el agente no sabe en qué formato entregar, y sin el Límite puede actuar sin permiso. Ambos cierran la instrucción.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Omitir el Límite por considerarlo opcional. Prevenir subrayando que el Límite es obligatorio para delegar con seguridad.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 4 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Identificar rol</span>
+          <span class="tag easy">Fácil</span>
+        </span>
+        <span class="ex-q">Ejercicio 4 · Simular a un inversor exigente antes de la reunión</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Un profesional pide a su IA que simule ser un inversor exigente, le plantee objeciones y no le dé consejos hasta terminar la conversación. ¿Qué rol está utilizando?
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          La simulación de interlocutor para ensayar corresponde al <strong>Preparador</strong>, que entrena negociaciones y conversaciones difíciles.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque la característica distintiva del Preparador es actuar como contraparte en un ensayo, no generar documentos ni organizar la agenda.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Atribuir la simulación al Productor por «generar contenido». Prevenir recordando que el Preparador produce práctica conversacional, no archivos.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 5 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Emparejar columnas</span>
+          <span class="tag easy">Fácil</span>
+        </span>
+        <span class="ex-q">Ejercicio 5 · Cada rol con su misión</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Empareja cada rol con su misión:
+        </div>
+        <div class="ex-pairs">
+          <div>
+            <h5>Columna A</h5>
+            <ul>
+              <li>1) Operador</li>
+              <li>2) Productor</li>
+              <li>3) Auditor</li>
+              <li>4) Preparador</li>
+            </ul>
+          </div>
+          <div>
+            <h5>Columna B</h5>
+            <ul>
+              <li>a) Detectar riesgos ocultos y revisar cláusulas</li>
+              <li>b) Organizar prioridades diarias desde correo y calendario</li>
+              <li>c) Entrenar conversaciones difíciles</li>
+              <li>d) Convertir material disperso en entregables</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          Operador → b; Productor → d; Auditor → a; Preparador → c.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Cada rol responde a una función específica: coordinación, creación, verificación y ensayo, y esa secuencia es la que da cobertura completa al proyecto.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Intercambiar Operador y Auditor por ambos «revisar». Prevenir recordando que el Operador revisa agenda/correo y el Auditor revisa documentos/mercado.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 6 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Verdadero / Falso</span>
+          <span class="tag easy">Fácil</span>
+        </span>
+        <span class="ex-q">Ejercicio 6 · ¿El Nivel 1 de la Escalera de Autonomía modifica el calendario?</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          En la Escalera de Autonomía, el Nivel 1 permite que el agente modifique eventos del calendario de forma automática. Indica si es verdadero o falso y justifica.
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          El Nivel 1 solo permite buscar información y proponer soluciones, sin tocar nada. La afirmación es <strong>falsa</strong>.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque el diseño de la escalera comienza restringiendo la acción para verificar el criterio del agente antes de concederle permisos de modificación.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Creer que «más autonomía» es siempre mejor desde el inicio. Prevenir recordando que se sube un escalón solo tras demostrar comprensión de prioridades.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 7 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Opción múltiple</span>
+          <span class="tag easy">Fácil</span>
+        </span>
+        <span class="ex-q">Ejercicio 7 · La secuencia del ciclo interno de un agente</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          ¿Cuál es la secuencia correcta del ciclo interno de un agente de IA?
+          <ul>
+            <li>A) Ejecutar → enviar → esperar → cerrar</li>
+            <li>B) Analizar → elegir herramienta → evaluar resultado → decidir siguiente paso</li>
+            <li>C) Preguntar → responder → terminar</li>
+            <li>D) Buscar → copiar → pegar → publicar</li>
+          </ul>
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          El ciclo descrito en el material es analizar el objetivo, elegir herramienta, evaluar el resultado y decidir el paso siguiente. La opción correcta es <strong>B</strong>.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque es un ciclo iterativo que se repite hasta terminar el objetivo, no una secuencia lineal de una sola pasada.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Pensar que el agente resuelve todo en un único paso. Prevenir recordando que el ciclo se repite hasta completar la tarea.
+        </div>
+      </div>
+    </details>
+
+    <!-- ============================================
+         NIVEL MEDIO
+         ============================================ -->
+    <h2>🟡 Nivel Medio</h2>
+
+    <!-- Ejercicio 8 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Ordenar pasos</span>
+          <span class="tag medium">Medio</span>
+        </span>
+        <span class="ex-q">Ejercicio 8 · Ordena el ciclo «Razonar y Actuar»</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Ordena los siguientes pasos del ciclo «Razonar y Actuar»: (a) decidir el siguiente paso, (b) analizar el objetivo, (c) evaluar el resultado obtenido, (d) elegir una herramienta.
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          Primero analizar el objetivo (b), luego elegir herramienta (d), después evaluar el resultado (c) y finalmente decidir el siguiente paso (a). <strong>Orden: b → d → c → a.</strong>
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque sin analizar el objetivo no hay criterio para elegir herramienta, y sin evaluar el resultado no hay base para decidir el paso siguiente.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Colocar «elegir herramienta» antes de «analizar el objetivo». Prevenir recordando que la herramienta se elige según la tarea, no al revés.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 9 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Completar</span>
+          <span class="tag medium">Medio</span>
+        </span>
+        <span class="ex-q">Ejercicio 9 · Completa los Niveles 2 y 3 de la Escalera de Autonomía</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Completa la Escalera de Autonomía: Nivel 1 = Visibilidad e Informe; Nivel 2 = ______; Nivel 3 = ______.
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          Nivel 2 corresponde a <strong>Asistencia Supervisada</strong> (prepara borradores y requiere confirmación) y Nivel 3 a <strong>Ejecución Programada</strong> (actúa automáticamente tras demostrar comprensión).
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque la delegación avanza desde observar, pasando por preparar bajo firma, hasta ejecutar de forma automática; saltarse el intermedio elimina el control humano.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Confundir Nivel 2 con automatización total. Prevenir recordando que en Nivel 2 siempre se exige confirmación antes de enviar o modificar.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 10 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Identificar rol</span>
+          <span class="tag medium">Medio</span>
+        </span>
+        <span class="ex-q">Ejercicio 10 · Revisar un contrato cláusula por cláusula</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Una persona pide a su IA que revise un contrato de alquiler cláusula por cláusula y devuelva una tabla con riesgos y preguntas pendientes antes de firmar. ¿Qué rol está aplicando?
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          La revisión cláusula por cláusula con matriz de riesgos corresponde al <strong>Auditor</strong>, en su escenario de auditoría de contratos.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque el Auditor separa hechos de suposiciones y detecta riesgos, mientras el Operador organiza y el Productor crea; ninguno sustituye esta función de verificación.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Confundir Auditor con Productor porque ambos devuelven un documento. Prevenir recordando que el Auditor no crea contenido nuevo, solo lo cuestiona.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 11 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Opción múltiple</span>
+          <span class="tag medium">Medio</span>
+        </span>
+        <span class="ex-q">Ejercicio 11 · ¿Qué partes del prompt están presentes en «organiza mis correos»?</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Un prompt pide «organiza mis correos», pero no indica qué herramienta usar, cómo clasificar, qué formato entregar ni qué acciones están prohibidas. ¿Qué parte de la estructura de 5 partes está presente?
+          <ul>
+            <li>A) Todas las partes</li>
+            <li>B) Solo Trabajo y Herramienta</li>
+            <li>C) Solo Trabajo</li>
+            <li>D) Solo Criterios y Resultado</li>
+          </ul>
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          El enunciado contiene únicamente la tarea («organiza mis correos»), sin herramienta, criterios, resultado ni límite. La respuesta correcta es <strong>C) Solo Trabajo</strong>.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque al faltar cuatro de las cinco partes, el agente no tiene restricciones ni formato, y tenderá a improvisar con resultados genéricos.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Creer que mencionar la tarea ya constituye un prompt completo. Prevenir verificando siempre las cinco partes antes de enviar.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 12 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Verdadero / Falso</span>
+          <span class="tag medium">Medio</span>
+        </span>
+        <span class="ex-q">Ejercicio 12 · Restringir fuentes para evitar datos inventados</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Decirle al agente «básate solo en los documentos adjuntos y si falta información pregúntame» ayuda a reducir el riesgo de que invente datos. Indica si es verdadero o falso y justifica.
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          Es <strong>verdadero</strong>. Esa restricción explícita limita la generación de información no respaldada y obliga al agente a pedir contexto antes de rellenar huecos.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque la invención de datos ocurre cuando el modelo carece de fuentes o se le deja improvisar; al cerrar esa vía con una instrucción, se elimina la causa principal.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Confiar en que el modelo «sabrá no inventar». Prevenir incorporando siempre la restricción de fuentes y la orden de preguntar.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 13 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Emparejar columnas</span>
+          <span class="tag medium">Medio</span>
+        </span>
+        <span class="ex-q">Ejercicio 13 · Cada agente con su entregable típico</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Empareja cada agente con el entregable típico que produce.
+        </div>
+        <div class="ex-pairs">
+          <div>
+            <h5>Columna A</h5>
+            <ul>
+              <li>1) Operador</li>
+              <li>2) Productor</li>
+              <li>3) Auditor</li>
+              <li>4) Preparador</li>
+            </ul>
+          </div>
+          <div>
+            <h5>Columna B</h5>
+            <ul>
+              <li>a) Tabla de riesgos con preguntas pendientes</li>
+              <li>b) Informe de prioridades y borradores</li>
+              <li>c) Tarjeta de preparación de una página</li>
+              <li>d) Presentación editable de varias diapositivas</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          Operador → b; Productor → d; Auditor → a; Preparador → c.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Cada entregable refleja la función del rol: coordinar produce informes, crear produce presentaciones, verificar produce matrices y entrenar produce tarjetas de preparación.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Asignar la tarjeta al Auditor por ser «documento serio». Prevenir recordando que la tarjeta es resultado del ensayo, no de la auditoría.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 14 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Opción múltiple</span>
+          <span class="tag medium">Medio</span>
+        </span>
+        <span class="ex-q">Ejercicio 14 · Los dos escenarios principales del Auditor</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          El Auditor se aplica principalmente en dos escenarios. ¿Cuáles son?
+          <ul>
+            <li>A) Organización de agenda y redacción de correos.</li>
+            <li>B) Investigación de mercado y auditoría de contratos.</li>
+            <li>C) Diseño de presentaciones y ensayo de negociaciones.</li>
+            <li>D) Programación de tareas y automatización de informes.</li>
+          </ul>
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          El material indica dos escenarios: investigación de mercado (información dispersa) y auditoría de contratos (información concentrada en un documento). La opción correcta es <strong>B</strong>.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque ambos casos comparten la necesidad de separar hechos de suposiciones y detectar riesgos, que es la función del Auditor.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Incluir la organización de agenda como escenario del Auditor. Prevenir recordando que eso pertenece al Operador.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 15 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Completar</span>
+          <span class="tag medium">Medio</span>
+        </span>
+        <span class="ex-q">Ejercicio 15 · El Límite en la instrucción de correo</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Completa: «Si hace falta responder un correo, prepara un borrador breve. No ______ ni ______ nada sin mi confirmación.»
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          La frase del Límite indica «No <strong>envíes</strong> ni <strong>modifiques</strong> nada sin mi confirmación».
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque el Límite existe para impedir acciones irreversibles en nombre del usuario; sin él, el agente podría actuar sin supervisión.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Redactar el Límite como sugerencia («procura no enviar»). Prevenir usando prohibiciones explícitas e inequívocas.
+        </div>
+      </div>
+    </details>
+
+    <!-- ============================================
+         NIVEL DIFÍCIL
+         ============================================ -->
+    <h2>🔴 Nivel Difícil</h2>
+
+    <!-- Ejercicio 16 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Ordenar pasos</span>
+          <span class="tag hard">Difícil</span>
+        </span>
+        <span class="ex-q">Ejercicio 16 · Orden recomendado para implantar los agentes</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Ordena los pasos recomendados para implantar los agentes: (a) ensayar con el Preparador antes de una reunión difícil; (b) usar el Auditor en un documento importante; (c) empezar con el Operador en Nivel 1; (d) añadir el Productor para un entregable real; (e) subir el Operador a Nivel 2 cuando funcione.
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          El orden recomendado es empezar por el Operador en Nivel 1 (c), subirlo a Nivel 2 cuando funcione (e), añadir el Productor (d), usar el Auditor (b) y finalmente ensayar con el Preparador (a). <strong>Orden: c → e → d → b → a.</strong>
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque cada agente aprovecha el resultado del anterior: la preparación usa la auditoría y la auditoría se apoya en el contexto ya ordenado por Operador y Productor.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Empezar por el Preparador por ser el más llamativo. Prevenir recordando que sin contexto previo la simulación sería poco realista.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 17 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Opción múltiple</span>
+          <span class="tag hard">Difícil</span>
+        </span>
+        <span class="ex-q">Ejercicio 17 · ¿Qué agente usar si la licencia de apertura es denegada?</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Un profesional necesita saber si el alquiler le obliga a pagar aunque el Ayuntamiento deniegue la licencia de apertura. ¿Qué agente debe usar y qué entregable esperar?
+          <ul>
+            <li>A) Operador, con un informe de prioridades diarias.</li>
+            <li>B) Productor, con una presentación de diez diapositivas.</li>
+            <li>C) Auditor, con una tabla de riesgos y preguntas pendientes.</li>
+            <li>D) Preparador, con una tarjeta de preparación de una página.</li>
+          </ul>
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          La consulta es sobre cláusulas contractuales y riesgo financiero. Corresponde al <strong>Auditor</strong>, y el entregable esperado es una <strong>tabla de riesgos</strong>. La opción correcta es <strong>C</strong>.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque el Auditor analiza el documento legal y traduce la cláusula en efecto práctico y riesgo, permitiendo negociar con preguntas concretas.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Elegir Preparador por estar cerca de una negociación. Prevenir recordando que el Preparador ensaya después de conocer los riesgos, no antes.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 18 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Verdadero / Falso</span>
+          <span class="tag hard">Difícil</span>
+        </span>
+        <span class="ex-q">Ejercicio 18 · ¿Qué permiten las Skills o habilidades?</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Las Skills o habilidades permiten al agente generar archivos reales con formato profesional, como presentaciones, PDF o hojas de cálculo. Indica si es verdadero o falso y justifica.
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          Es <strong>verdadero</strong>. Las Skills son instrucciones técnicas que habilitan la generación de archivos con formato, en lugar de mostrar solo texto en el chat.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque sin una habilidad específica el agente solo puede devolver texto, y el entregable profesional exige un formato de archivo concreto que requiere esa capacidad.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Creer que basta con pedir «hazme un PowerPoint» sin que exista la habilidad. Prevenir verificando que la plataforma disponga de Skills para el formato requerido.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 19 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Identificar rol</span>
+          <span class="tag hard">Difícil</span>
+        </span>
+        <span class="ex-q">Ejercicio 19 · Simulación con contrato, auditoría y postura propia</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Un profesional entrega a su IA un contrato, una auditoría previa y un documento con su postura, sus límites y sus concesiones posibles, y le pide que asuma el papel de la contraparte y registre la conversación. ¿Qué rol está aplicando y en qué fase?
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          Se trata del <strong>Preparador</strong>, en la fase de <strong>asignación de rol y reglas de conducta</strong> dentro de la simulación de negociación.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque la clave del Preparador es la simulación de la contraparte con contexto real; sin los tres documentos la simulación sería blanda y poco representativa.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Confundir esta fase con el Auditor por usar la auditoría como insumo. Prevenir recordando que aquí la auditoría es contexto, no el producto final.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 20 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Completar</span>
+          <span class="tag hard">Difícil</span>
+        </span>
+        <span class="ex-q">Ejercicio 20 · Instrucción al Productor cuando falta información</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Completa la instrucción dirigida al agente Productor: «Si falta información importante, ______ antes de continuar y no ______ datos.»
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          La instrucción correcta es «<strong>pregúntame</strong> antes de continuar y no <strong>inventes</strong> datos».
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque el Productor trabaja con material desordenado y, ante huecos, la ausencia de esta orden lo lleva a rellenar con datos falsos en lugar de consultar.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Suponer que el agente pedirá aclaraciones por iniciativa propia. Prevenir incluyendo siempre la orden explícita de preguntar.
+        </div>
+      </div>
+    </details>
+
+    <!-- Ejercicio 21 -->
+    <details class="acc">
+      <summary>
+        <span class="ex-meta">
+          <span class="tag">Opción múltiple</span>
+          <span class="tag hard">Difícil</span>
+        </span>
+        <span class="ex-q">Ejercicio 21 · El problema principal de «Revisa mis correos y responde a los urgentes»</span>
+      </summary>
+      <div class="body">
+        <div class="ex-block">
+          <b>Enunciado</b>
+          Un usuario escribe: «Revisa mis correos y responde a los urgentes». ¿Cuál es el problema principal de esta instrucción?
+          <ul>
+            <li>A) Usa demasiadas partes de la estructura de prompt.</li>
+            <li>B) Le falta el Límite, por lo que el agente podría enviar correos en su nombre.</li>
+            <li>C) No menciona el ciclo Razonar y Actuar.</li>
+            <li>D) No indica el nombre del proyecto.</li>
+          </ul>
+        </div>
+        <div class="ex-block ok">
+          <b>Solución paso a paso</b>
+          La instrucción permite responder directamente, es decir, enviar correos sin autorización. Falta el Límite. La opción correcta es <strong>B</strong>.
+        </div>
+        <div class="ex-block">
+          <b>Por qué (Explicación causal)</b>
+          Porque al no prohibir el envío, el agente ejecuta la acción de forma autónoma y produce un efecto irreversible en nombre del usuario.
+        </div>
+        <div class="ex-block warn">
+          <b>Error típico a evitar</b>
+          Centrarse en detalles de contexto (nombre del proyecto) e ignorar el riesgo de acción. Prevenir revisando primero si el prompt autoriza acciones no deseadas.
+        </div>
+      </div>
+    </details>
+
+    <div class="card ok">
+      <p><strong>Cierre de la sección:</strong> si has resuelto los 21 ejercicios, dominas los cuatro roles, la estructura del prompt en 5 partes, la Escalera de Autonomía, el ciclo Razonar y Actuar y los errores típicos que debes evitar en la práctica real.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       CRÉDITOS (siempre el último)
+       ========================================================== -->
+  <section class="panel" id="creditos">
+    <h1>Créditos</h1>
+
+    <div class="hero">
+      <svg class="svg-credits" viewBox="0 0 460 340" role="img" aria-label="Esquema animado: cuatro agentes de IA conectados a un núcleo central">
+        <use href="#svgHero"></use>
+      </svg>
+    </div>
+
+    <div class="card" style="text-align:center">
+      <div class="credits-name">Rubén Sbarsky</div>
+      <p style="font-size:1rem;font-weight:700;margin-top:0">Autor del tutorial</p>
+      <p class="muted">Tutorial interactivo sobre los cuatro agentes de IA para proyectos:<br>Operador, Productor, Auditor y Preparador.</p>
+      <p class="stamp">Creado el 01/10/2026 — 09:14:27</p>
+    </div>
+
+    <div class="card accent">
+      <h3 style="margin-top:0">Contenido de este tutorial</h3>
+      <ul>
+        <li><strong>Fuente principal:</strong> documento «Cuatro agentes de IA para proyectos».</li>
+        <li><strong>Estructura pedagógica:</strong> qué es → para qué sirve → por qué importa → cómo se hace → ejemplo → práctica → errores → resumen → ejercicios.</li>
+        <li><strong>Prompts:</strong> reproducidos del material original, listos para copiar y adaptar.</li>
+        <li><strong>Ejercicios:</strong> 21 actividades con solución paso a paso, explicación causal y error típico a evitar.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Aviso de uso</h3>
+      <p class="muted">Los agentes de IA descritos aquí <strong>no sustituyen</strong> el criterio profesional de un abogado, gestor o asesor. Su función es prepararte para tomar mejores decisiones y llegar a esas consultas con las preguntas exactas.</p>
+    </div>
+  </section>
+
+</main>
+
+<button class="to-top" id="toTop" title="Volver arriba" aria-label="Volver arriba">↑</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var $  = function(s, r){ return (r||document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+
+  /* ==========================================================
+     1. PESTAÑAS
+     ========================================================== */
+  var tabs   = $$('.tab');
+  var panels = $$('.panel');
+
+  function showTab(id){
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.tab === id); });
+    panels.forEach(function(p){ p.classList.toggle('active', p.id === id); });
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e){ window.scrollTo(0,0); }
+  }
+
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){ showTab(t.dataset.tab); });
+  });
+
+  /* ==========================================================
+     2. TEMA CLARO / OSCURO
+     ========================================================== */
+  var btnTheme = $('#btnTheme');
+  var LS_THEME = 'cag_theme';
+
+  function applyTheme(mode){
+    if(mode === 'light'){
+      document.documentElement.classList.add('light');
+      btnTheme.textContent = '🌙';
+      btnTheme.setAttribute('title','Cambiar a modo oscuro');
+    } else {
+      document.documentElement.classList.remove('light');
+      btnTheme.textContent = '☀︎';
+      btnTheme.setAttribute('title','Cambiar a modo claro');
+    }
+  }
+
+  var savedTheme = null;
+  try { savedTheme = localStorage.getItem(LS_THEME); } catch(e){}
+  applyTheme(savedTheme === 'light' ? 'light' : 'dark');
+
+  btnTheme.addEventListener('click', function(){
+    var isLight = document.documentElement.classList.contains('light');
+    var next = isLight ? 'dark' : 'light';
+    applyTheme(next);
+    try { localStorage.setItem(LS_THEME, next); } catch(e){}
+  });
+
+  /* ==========================================================
+     3. TAMAÑO DE TEXTO
+     ========================================================== */
+  var LS_FONT = 'cag_font';
+  var fontSize = 16;
+
+  try {
+    var f = parseFloat(localStorage.getItem(LS_FONT));
+    if(!isNaN(f) && f >= 13 && f <= 22) fontSize = f;
+  } catch(e){}
+
+  function applyFont(){
+    document.documentElement.style.fontSize = fontSize + 'px';
+    try { localStorage.setItem(LS_FONT, String(fontSize)); } catch(e){}
+  }
+  applyFont();
+
+  $('#btnFontMinus').addEventListener('click', function(){
+    fontSize = Math.max(13, fontSize - 1); applyFont();
+  });
+  $('#btnFontPlus').addEventListener('click', function(){
+    fontSize = Math.min(22, fontSize + 1); applyFont();
+  });
+
+  /* ==========================================================
+     4. BARRA DE PROGRESO DE LECTURA
+     ========================================================== */
+  var progressFill = $('#progressFill');
+  var toTop = $('#toTop');
+
+  function onScroll(){
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+    progressFill.style.width = Math.min(100, Math.max(0, pct)) + '%';
+
+    if(window.scrollY > 420){ toTop.classList.add('on'); }
+    else { toTop.classList.remove('on'); }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  toTop.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ==========================================================
+     5. CHECKLIST + PROGRESO (localStorage)
+     ========================================================== */
+  var LS_CHECKS = 'cag_checks';
+  var boxes = $$('#checklist input[type=checkbox]');
+  var checkFill = $('#checkFill');
+  var checkText = $('#checkText');
+  var checks = {};
+
+  try {
+    checks = JSON.parse(localStorage.getItem(LS_CHECKS) || '{}') || {};
+  } catch(e){ checks = {}; }
+
+  function saveChecks(){
+    try { localStorage.setItem(LS_CHECKS, JSON.stringify(checks)); } catch(e){}
+  }
+
+  function updateCheckProgress(){
+    var done = 0;
+    boxes.forEach(function(b){
+      if(b.checked){ done++; }
+      var label = b.closest('.check-item');
+      if(label){ label.classList.toggle('done', b.checked); }
+    });
+    var total = boxes.length || 1;
+    var pct = Math.round((done / total) * 100);
+    if(checkFill) checkFill.style.width = pct + '%';
+    if(checkText) checkText.textContent = done + ' de ' + boxes.length + ' completados (' + pct + '%)';
+  }
+
+  boxes.forEach(function(b){
+    var key = b.dataset.check;
+    if(checks[key]) b.checked = true;
+    b.addEventListener('change', function(){
+      checks[key] = b.checked;
+      saveChecks();
+      updateCheckProgress();
+    });
+  });
+  updateCheckProgress();
+
+  /* ==========================================================
+     6. BOTONES COPIAR — implementación robusta única
+     ========================================================== */
+  function legacyCopy(text){
+    return new Promise(function(resolve, reject){
+      var ta = null;
+      var prevActive = null;
+      try{
+        prevActive = document.activeElement;
+
+        ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.setAttribute('aria-hidden', 'true');
+        ta.style.position = 'fixed';
+        ta.style.top = '0';
+        ta.style.left = '-9999px';
+        ta.style.width = '2em';
+        ta.style.height = '2em';
+        ta.style.padding = '0';
+        ta.style.border = 'none';
+        ta.style.outline = 'none';
+        ta.style.boxShadow = 'none';
+        ta.style.background = 'transparent';
+
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try{ ta.setSelectionRange(0, ta.value.length); }catch(_e){}
+
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        ta = null;
+
+        if(prevActive && typeof prevActive.focus === 'function'){
+          try{ prevActive.focus(); }catch(_e){}
+        }
+
+        ok ? resolve() : reject(new Error('execCommand("copy") devolvió false'));
+      }catch(err){
+        if(ta && ta.parentNode){ try{ ta.parentNode.removeChild(ta); }catch(_e){} }
+        reject(err);
+      }
+    });
+  }
+
+  function copyText(text){
+    if(navigator.clipboard
+       && window.isSecureContext
+       && typeof navigator.clipboard.writeText === 'function'){
+      return navigator.clipboard.writeText(text).catch(function(){
+        return legacyCopy(text);
+      });
+    }
+    return legacyCopy(text);
+  }
+
+  $$('.copyBtn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.promptBox');
+      if(!box) return;
+      var body = box.querySelector('.promptBody');
+      if(!body) return;
+
+      copyText(body.textContent).then(function(){
+        var original = btn.textContent;
+        btn.textContent = '✓ COPIADO';
+        btn.classList.add('done');
+        setTimeout(function(){
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1800);
+      }).catch(function(){
+        try{
+          var range = document.createRange();
+          range.selectNodeContents(body);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }catch(e){}
+        var original = btn.textContent;
+        btn.textContent = 'SELECCIONA Y COPIA';
+        setTimeout(function(){ btn.textContent = original; }, 2200);
+      });
+    });
+  });
+
+  /* ==========================================================
+     7. TOAST
+     ========================================================== */
+  var toastEl = $('#toast');
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('on'); }, 2200);
+  }
+
+  /* ==========================================================
+     8. CONSTRUCTOR DE PROMPTS
+     ========================================================== */
+  var bGen = $('#bGen');
+  if(bGen){
+    bGen.addEventListener('click', function(){
+      var trabajo     = $('#bTrabajo').value.trim();
+      var herramienta = $('#bHerramienta').value.trim();
+      var criterios   = $('#bCriterios').value.trim();
+      var resultado   = $('#bResultado').value.trim();
+      var limite      = $('#bLimite').value.trim();
+
+      if(!trabajo){
+        toast('Escribe al menos la parte 1 (Trabajo).');
+        return;
+      }
+
+      var partes = [];
+      partes.push(trabajo.replace(/\.$/, '') + '.');
+      if(herramienta) partes.push('Utiliza ' + herramienta.replace(/\.$/, '') + '.');
+      if(criterios)   partes.push('Clasifica la información así: ' + criterios.replace(/\.$/, '') + '.');
+      if(resultado)   partes.push('Entrega el resultado en este formato: ' + resultado.replace(/\.$/, '') + '.');
+      if(limite)      partes.push(limite.replace(/\.$/, '') + '.');
+      partes.push('Si falta información importante, pregúntame antes de continuar y no inventes datos.');
+
+      $('#bOut').textContent = '"' + partes.join(' ') + '"';
+      toast('Prompt generado');
+    });
+  }
+
+  /* ==========================================================
+     9. BUSCADOR CON RESALTADO
+     ========================================================== */
+  var searchInput = $('#search');
+  var searchInfo  = $('#searchInfo');
+  var searchTimer = null;
+
+  function clearHighlights(root){
+    $$('mark.search-hl', root || document).forEach(function(m){
+      var parent = m.parentNode;
+      if(!parent) return;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+  }
+
+  function highlight(term){
+    clearHighlights();
+    if(!term || term.length < 2) return 0;
+
+    var container = $('#contenido');
+    var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(node){
+        if(!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        var p = node.parentNode;
+        if(!p) return NodeFilter.FILTER_REJECT;
+        if(/^(SCRIPT|STYLE|MARK|TEXTAREA|INPUT|SELECT)$/.test(p.nodeName)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    var nodes = [];
+    while(walker.nextNode()){ nodes.push(walker.currentNode); }
+
+    var safe = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    var re = new RegExp(safe, 'gi');
+    var count = 0;
+
+    nodes.forEach(function(node){
+      var text = node.nodeValue;
+      re.lastIndex = 0;
+      if(!re.test(text)) return;
+      re.lastIndex = 0;
+
+      var frag = document.createDocumentFragment();
+      var last = 0, m;
+      while((m = re.exec(text)) !== null){
+        if(m.index > last){
+          frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        }
+        var mark = document.createElement('mark');
+        mark.className = 'search-hl';
+        mark.textContent = m[0];
+        frag.appendChild(mark);
+        last = m.index + m[0].length;
+        count++;
+        if(m[0].length === 0){ re.lastIndex++; }
+      }
+      if(last < text.length){
+        frag.appendChild(document.createTextNode(text.slice(last)));
+      }
+      node.parentNode.replaceChild(frag, node);
+    });
+
+    return count;
+  }
+
+  function panelOf(el){
+    while(el && el !== document){
+      if(el.classList && el.classList.contains('panel')) return el;
+      el = el.parentNode;
+    }
+    return null;
+  }
+
+  searchInput.addEventListener('input', function(){
+    clearTimeout(searchTimer);
+    var term = searchInput.value.trim();
+
+    searchTimer = setTimeout(function(){
+      var count = highlight(term);
+
+      if(!term || term.length < 2){
+        searchInfo.classList.remove('on');
+        searchInfo.textContent = '';
+        return;
+      }
+
+      var active = $('.panel.active');
+      var marksInActive = active ? active.querySelectorAll('mark.search-hl').length : 0;
+
+      if(count > 0 && marksInActive === 0){
+        var firstMark = document.querySelector('mark.search-hl');
+        var target = panelOf(firstMark);
+        if(target && target.id){ showTab(target.id); }
+      }
+
+      searchInfo.classList.add('on');
+      if(count === 0){
+        searchInfo.textContent = 'Sin resultados para «' + term + '».';
+      } else {
+        searchInfo.textContent = count + ' coincidencia' + (count === 1 ? '' : 's') + ' para «' + term + '».';
+      }
+    }, 220);
+  });
+
+  /* ==========================================================
+     10. IMPRIMIR / GUARDAR COMO PDF
+     ========================================================== */
+  var btnPrint = $('#btnPrint');
+
+  function openAllDetails(){
+    var closed = [];
+    $$('details').forEach(function(d){
+      if(!d.open){ d.open = true; closed.push(d); }
+    });
+    return closed;
+  }
+
+  function syncCheckboxAttributes(){
+    $$('input[type=checkbox]').forEach(function(c){
+      if(c.checked){ c.setAttribute('checked','checked'); }
+      else { c.removeAttribute('checked'); }
+    });
+  }
+
+  function fallbackPrint(){
+    try{
+      var clone = document.documentElement.cloneNode(true);
+      Array.prototype.forEach.call(clone.querySelectorAll('script'), function(s){ s.remove(); });
+      Array.prototype.forEach.call(clone.querySelectorAll('.panel'), function(p){ p.classList.add('active'); });
+      Array.prototype.forEach.call(clone.querySelectorAll('details'), function(d){ d.setAttribute('open','open'); });
+
+      var html = '<!DOCTYPE html>' + clone.outerHTML;
+      var w = window.open('', '_blank');
+      if(!w){
+        toast('Permite las ventanas emergentes para guardar el PDF.');
+        return;
+      }
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+      w.focus();
+      setTimeout(function(){
+        try { w.print(); } catch(e){}
+      }, 700);
+    } catch(e){
+      toast('No se pudo abrir la ventana de impresión.');
+    }
+  }
+
+  btnPrint.addEventListener('click', function(){
+    var closedDetails = openAllDetails();
+    syncCheckboxAttributes();
+
+    var printed = false;
+    function markPrinted(){ printed = true; }
+
+    if(window.addEventListener){
+      window.addEventListener('afterprint', markPrinted, { once: true });
+    }
+
+    try {
+      window.print();
+    } catch(e){
+      /* seguimos al fallback */
+    }
+
+    setTimeout(function(){
+      if(!printed){
+        fallbackPrint();
+      }
+      closedDetails.forEach(function(d){ d.open = false; });
+    }, 1400);
+  });
+
+  /* ==========================================================
+     11. ATAJOS DE TECLADO
+     ========================================================== */
+  document.addEventListener('keydown', function(e){
+    if(e.key === '/' && document.activeElement !== searchInput){
+      var tag = (document.activeElement && document.activeElement.tagName) || '';
+      if(tag !== 'INPUT' && tag !== 'TEXTAREA'){
+        e.preventDefault();
+        searchInput.focus();
+      }
+    }
+    if(e.key === 'Escape' && document.activeElement === searchInput){
+      searchInput.value = '';
+      clearHighlights();
+      searchInfo.classList.remove('on');
+      searchInput.blur();
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
